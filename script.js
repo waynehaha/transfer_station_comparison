@@ -295,10 +295,10 @@ function renderTableHead(showOfficial) {
     <th>充值 ¥</th>
     <th>到账 $</th>
     <th>渠道倍率</th>
-    ${showOfficial ? '<th class="official-price-head">官方输入 $/M</th><th class="official-price-head">官方输出 $/M</th><th class="official-price-head">官方缓存 $/M</th>' : ''}
-    <th>实际输入 $/M</th>
-    <th>实际输出 $/M</th>
-    <th>实际缓存 $/M</th>
+    ${showOfficial ? '<th class="official-price-head">官方输入</th><th class="official-price-head">官方输出</th><th class="official-price-head">官方缓存</th>' : ''}
+    <th>实际输入</th>
+    <th>实际输出</th>
+    <th>实际缓存</th>
     <th class="calculation-head output-condition-head">
       <div class="head-inline-control">
         <label for="rechargeInput">每</label>
