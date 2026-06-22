@@ -41,11 +41,7 @@
           <p class="eyebrow">Manage</p>
           <h2 id="editor-title">新增渠道</h2>
         </div>
-        <div class="manage-actions">
-          <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
-          <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
-          <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
-        </div>
+        <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
       </div>
       <form id="providerForm" class="provider-form">
         <label>
@@ -116,7 +112,11 @@
           </select>
         </div>
         <p id="officialVisibilityHint">当前所有渠道官方价一致，表格默认只展示实际价格。</p>
-        <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
+        <div class="table-action-group">
+          <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
+          <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
+          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
+        </div>
       </div>
       <div class="table-wrap">
         <table>

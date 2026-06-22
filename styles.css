@@ -591,24 +591,24 @@ td.highlight { color: var(--success); font-size: 18px; }
   }
 }
 
-.manage-actions {
+.manage-actions, .table-action-group {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
 }
 
-.manage-actions .ghost-btn {
+.manage-actions .ghost-btn, .table-action-group .ghost-btn {
   min-height: 42px;
 }
 
 @media (max-width: 640px) {
-  .manage-actions {
+  .manage-actions, .table-action-group {
     width: 100%;
     justify-content: stretch;
   }
 
-  .manage-actions .ghost-btn {
+  .manage-actions .ghost-btn, .table-action-group .ghost-btn {
     flex: 1 1 100%;
   }
 }
