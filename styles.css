@@ -1430,19 +1430,38 @@ body.is-readonly #priceRows td:nth-last-child(3) {
 }
 
 body.is-readonly #priceHeadRow th:nth-last-child(2),
-body.is-readonly #priceRows td:nth-last-child(2) {
+body.is-readonly #priceRows td:nth-last-child(2),
+body.is-readonly #priceHeadRow th:last-child,
+body.is-readonly #priceRows td:last-child {
+  position: static;
+  right: auto;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2) {
   position: sticky;
   right: 190px;
-  z-index: 5;
+  z-index: 40;
   width: 150px;
   min-width: 150px;
 }
 
-body.is-readonly #priceHeadRow th:last-child,
-body.is-readonly #priceRows td:last-child {
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:last-child,
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:last-child,
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:last-child {
   position: sticky;
   right: 0;
-  z-index: 6;
+  z-index: 41;
   width: 190px;
   min-width: 190px;
 }
@@ -1487,15 +1506,23 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-chi
 }
 
 @media (max-width: 760px) {
-  body.is-readonly #priceHeadRow th:nth-last-child(2),
-  body.is-readonly #priceRows td:nth-last-child(2) {
+  body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+  body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+  body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+  body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+  body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
+  body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2) {
     right: 158px;
     width: 132px;
     min-width: 132px;
   }
 
-  body.is-readonly #priceHeadRow th:last-child,
-  body.is-readonly #priceRows td:last-child {
+  body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
+  body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:last-child,
+  body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:last-child,
+  body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:last-child,
+  body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:last-child,
+  body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:last-child {
     width: 158px;
     min-width: 158px;
   }
@@ -1514,4 +1541,45 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-chi
 .provider-name-link:focus-visible {
   color: #fed7aa;
   text-decoration: underline;
+}
+
+/* 公开展示时没有操作列，表格按展示内容均衡铺满，避免中间留出大块空白 */
+body.is-readonly table {
+  table-layout: fixed;
+}
+
+body.is-readonly #priceHeadRow th:first-child,
+body.is-readonly #priceRows td:first-child {
+  width: 18%;
+}
+
+body.is-readonly #priceHeadRow th:nth-child(2),
+body.is-readonly #priceRows td:nth-child(2),
+body.is-readonly #priceHeadRow th:nth-child(3),
+body.is-readonly #priceRows td:nth-child(3) {
+  width: 8%;
+}
+
+body.is-readonly #priceHeadRow th:nth-child(4),
+body.is-readonly #priceRows td:nth-child(4) {
+  width: 7%;
+}
+
+body.is-readonly #priceHeadRow th:nth-child(5),
+body.is-readonly #priceRows td:nth-child(5),
+body.is-readonly #priceHeadRow th:nth-child(6),
+body.is-readonly #priceRows td:nth-child(6),
+body.is-readonly #priceHeadRow th:nth-child(7),
+body.is-readonly #priceRows td:nth-child(7) {
+  width: 9%;
+}
+
+body.is-readonly #priceHeadRow th:nth-last-child(2),
+body.is-readonly #priceRows td:nth-last-child(2) {
+  width: 14%;
+}
+
+body.is-readonly #priceHeadRow th:last-child,
+body.is-readonly #priceRows td:last-child {
+  width: 16%;
 }

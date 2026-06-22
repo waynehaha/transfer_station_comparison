@@ -55,7 +55,6 @@ let importMode = 'merge';
 let editingProviderId = null;
 let editDraft = null;
 let officialVisibleBeforeEdit = null;
-let detailsCollapsed = false;
 let isReadOnlyMode = false;
 
 const rowsEl = document.querySelector('#priceRows');
@@ -73,7 +72,6 @@ const providerOutputPriceLabel = document.querySelector('#providerOutputPriceLab
 const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel');
 const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel');
 const formMessage = document.querySelector('#formMessage');
-const detailsToggleBtn = document.querySelector('#detailsToggleBtn');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
 const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
 const displayModeButtons = document.querySelectorAll('.display-mode-btn');
@@ -547,7 +545,6 @@ function beginEditProvider(id) {
   editingProviderId = id;
   editDraft = cloneProvider(provider);
   officialVisibleBeforeEdit = forceShowOfficialPrices;
-  detailsCollapsed = false;
   forceShowOfficialPrices = true;
   render();
 }
@@ -650,7 +647,7 @@ function renderProviderRow(provider, showOfficial) {
       <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
       <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
 
-  const detailCells = detailsCollapsed ? '' : `
+  const detailCells = `
       <td>${isEditing ? editInput('rechargeCny', viewProvider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"') : tableText(viewProvider.rechargeCny)}</td>
       <td>${isEditing ? editPrefixedInput(creditField(viewProvider), creditAmount(viewProvider), creditCurrency(viewProvider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`) : `${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}`}</td>
       <td>${isCnyMode ? '<span class="muted muted-dash">-</span>' : (isEditing ? editInput('multiplier', viewProvider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"') : tableText(viewProvider.multiplier))}</td>
@@ -677,19 +674,16 @@ function renderTableHead(showOfficial) {
   const [inputLabel, outputLabel, cacheLabel] = displayPriceLabels();
   tableHeadRow.dataset.officialVisible = String(showOfficial);
   tableHeadRow.dataset.displayMode = priceDisplayMode;
-  tableHeadRow.dataset.detailsCollapsed = String(detailsCollapsed);
   tableHeadRow.dataset.readonly = String(isReadOnlyMode);
   tableHeadRow.innerHTML = `
     <th>中转站</th>
-    ${detailsCollapsed ? '' : `
-      <th>充值 ¥</th>
-      <th>到账</th>
-      <th>渠道倍率</th>
-      ${showOfficial ? '<th class="official-price-head">官方输入</th><th class="official-price-head">官方输出</th><th class="official-price-head">官方缓存</th>' : ''}
-      <th>${inputLabel}</th>
-      <th>${outputLabel}</th>
-      <th>${cacheLabel}</th>
-    `}
+    <th>充值 ¥</th>
+    <th>到账</th>
+    <th>渠道倍率</th>
+    ${showOfficial ? '<th class="official-price-head">官方输入</th><th class="official-price-head">官方输出</th><th class="official-price-head">官方缓存</th>' : ''}
+    <th>${inputLabel}</th>
+    <th>${outputLabel}</th>
+    <th>${cacheLabel}</th>
     <th class="calculation-head output-condition-head">
       <div class="head-inline-control">
         <label for="rechargeInput">每</label>
@@ -717,7 +711,7 @@ function renderTableHead(showOfficial) {
 function renderEmptyState() {
   const showOfficial = shouldShowOfficialColumns();
   renderTableHead(showOfficial);
-  const columnCount = (detailsCollapsed ? 3 : (showOfficial ? 12 : 9)) + (isReadOnlyMode ? 0 : 1);
+  const columnCount = (showOfficial ? 12 : 9) + (isReadOnlyMode ? 0 : 1);
   rowsEl.innerHTML = `<tr><td colspan="${columnCount}" class="muted">${isReadOnlyMode ? '暂无渠道数据。' : '暂无渠道，请先新增。'}</td></tr>`;
   scheduleTableOverflowCheck();
 }
@@ -728,13 +722,6 @@ function renderDisplayModeControls() {
     button.classList.toggle('is-active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
-}
-
-
-function renderDetailsToggleControl() {
-  if (!detailsToggleBtn) return;
-  detailsToggleBtn.textContent = detailsCollapsed ? '展开基础参数' : '收起基础参数';
-  detailsToggleBtn.setAttribute('aria-pressed', String(detailsCollapsed));
 }
 
 function renderOfficialControls(showOfficial, sameOfficialPrice) {
@@ -762,7 +749,6 @@ function render(options = {}) {
   const showOfficial = shouldShowOfficialColumns();
   setReadOnlyMode(isReadOnlyMode);
   renderDisplayModeControls();
-  renderDetailsToggleControl();
   renderOfficialControls(showOfficial, sameOfficialPrice);
 
   if (!providers.length) {
@@ -961,7 +947,6 @@ async function replaceProvidersFromFile(file) {
   await persistProviders();
   forceShowOfficialPrices = false;
   priceDisplayMode = 'original';
-  detailsCollapsed = false;
   clearEditState({ restoreOfficial: false });
   render();
   showMessage(`已覆盖导入 ${providers.length} 个渠道，并保存到项目文件。`);
@@ -1026,18 +1011,10 @@ restoreDefaultsBtn.addEventListener('click', () => {
   clearEditState({ restoreOfficial: false });
   forceShowOfficialPrices = false;
   priceDisplayMode = 'original';
-  detailsCollapsed = false;
   saveProviders();
   render();
   showMessage('已恢复默认 3 个示例渠道。');
 });
-
-detailsToggleBtn.addEventListener('click', () => {
-  detailsCollapsed = !detailsCollapsed;
-  if (detailsCollapsed) clearEditState({ restoreOfficial: true });
-  render();
-});
-
 officialToggleBtn.addEventListener('click', () => {
   forceShowOfficialPrices = !forceShowOfficialPrices;
   render();
