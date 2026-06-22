@@ -27,7 +27,7 @@ body {
   color: var(--text);
 }
 
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 
 .app-shell {
   width: min(1760px, calc(100% - 32px));
@@ -200,7 +200,7 @@ button {
 }
 
 button:hover { background: rgba(249, 115, 22, 0.24); transform: translateY(-1px); }
-button:focus-visible, input:focus-visible, .table-input:focus-visible { outline: 3px solid rgba(96, 165, 250, 0.75); outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, .table-input:focus-visible { outline: 3px solid rgba(96, 165, 250, 0.75); outline-offset: 3px; }
 
 .cards {
   display: grid;
@@ -293,7 +293,7 @@ button:focus-visible, input:focus-visible, .table-input:focus-visible { outline:
 
 table {
   width: 100%;
-  min-width: 1180px;
+  min-width: 1280px;
   border-collapse: collapse;
   table-layout: auto;
 }
@@ -500,9 +500,10 @@ td.highlight { color: var(--success); font-size: 18px; }
   #priceHeadRow th:nth-last-child(4),
   #priceRows td:nth-last-child(4),
   #priceHeadRow th:nth-last-child(3),
-  #priceRows td:nth-last-child(3),
+  #priceRows td:nth-last-child(3) { min-width: 130px; }
+
   #priceHeadRow th:nth-last-child(2),
-  #priceRows td:nth-last-child(2) { min-width: 130px; }
+  #priceRows td:nth-last-child(2) { min-width: 170px; }
 
   #priceHeadRow th:last-child,
   #priceRows td:last-child { min-width: 86px; }
@@ -537,11 +538,11 @@ td.highlight { color: var(--success); font-size: 18px; }
   min-height: 42px;
 }
 
-/* 详细表控制区：金额与目标输出量统一放到表格上方 */
+/* 详细表控制区：只保留表格展示开关，计算条件已合并到表头 */
 .table-tools-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(220px, 260px) 1fr auto;
-  align-items: end;
+  grid-template-columns: 1fr auto;
+  align-items: center;
 }
 
 .table-control {
@@ -596,6 +597,63 @@ td.highlight { color: var(--success); font-size: 18px; }
 
 .price-cost {
   white-space: nowrap;
+}
+
+.calculation-head {
+  min-width: 170px;
+  vertical-align: top;
+}
+
+.calculation-head label {
+  display: block;
+  margin-bottom: 8px;
+  color: #fed7aa;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.head-money-input,
+.calculation-head select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(249, 115, 22, 0.42);
+  border-radius: 13px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0;
+  outline: 0;
+}
+
+.head-money-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.head-money-input span {
+  color: var(--primary);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.head-money-input input {
+  width: 100%;
+  min-width: 48px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.calculation-head select {
+  padding: 0 10px;
 }
 
 .hint-icon {

@@ -44,8 +44,6 @@ let forceShowOfficialPrices = false;
 let saveTimer = null;
 let importMode = 'replace';
 
-const rechargeInput = document.querySelector('#rechargeInput');
-const targetTokenSelect = document.querySelector('#targetTokenSelect');
 const cardsEl = document.querySelector('#cards');
 const rowsEl = document.querySelector('#priceRows');
 const tableHeadRow = document.querySelector('#priceHeadRow');
@@ -218,14 +216,24 @@ function escapeHtml(value) {
   })[char]);
 }
 
+function getRechargeInput() {
+  return document.querySelector('#rechargeInput');
+}
+
+function getTargetTokenSelect() {
+  return document.querySelector('#targetTokenSelect');
+}
+
 function getRechargeAmount() {
-  const raw = Number(rechargeInput.value);
+  const input = getRechargeInput();
+  const raw = Number(input?.value);
   if (!Number.isFinite(raw) || raw <= 0) return 10;
   return raw;
 }
 
 function getTargetTokenMillion() {
-  const raw = Number(targetTokenSelect.value);
+  const select = getTargetTokenSelect();
+  const raw = Number(select?.value);
   if (!Number.isFinite(raw) || raw <= 0) return 100;
   return raw;
 }
@@ -237,7 +245,8 @@ function costForOutput(provider, targetMillion) {
 }
 
 function targetTokenLabel() {
-  const option = targetTokenSelect.selectedOptions[0];
+  const select = getTargetTokenSelect();
+  const option = select?.selectedOptions?.[0];
   return option ? option.textContent.replace(' tokens', '') : '1亿';
 }
 
@@ -279,6 +288,8 @@ function editableCell(provider, field, value, type = 'number', extra = '') {
 }
 
 function renderTableHead(showOfficial) {
+  const currentAmount = getRechargeAmount();
+  const currentTarget = getTargetTokenMillion();
   tableHeadRow.innerHTML = `
     <th>中转站</th>
     <th>充值金额</th>
@@ -288,8 +299,21 @@ function renderTableHead(showOfficial) {
     <th>实际输入价</th>
     <th>实际输出价</th>
     <th>实际缓存价</th>
-    <th>每 ${formatMoney(getRechargeAmount())} 输出</th>
-    <th>${targetOutputPriceLabel()}</th>
+    <th class="calculation-head">
+      <label for="rechargeInput">每多少人民币输出</label>
+      <div class="head-money-input">
+        <span>¥</span>
+        <input id="rechargeInput" type="number" min="1" step="1" value="${currentAmount}" inputmode="decimal" aria-label="按多少人民币计算输出" />
+      </div>
+    </th>
+    <th class="calculation-head">
+      <label for="targetTokenSelect">目标输出价格</label>
+      <select id="targetTokenSelect" aria-label="选择目标输出量">
+        <option value="1" ${currentTarget === 1 ? 'selected' : ''}>100万 tokens</option>
+        <option value="10" ${currentTarget === 10 ? 'selected' : ''}>1000万 tokens</option>
+        <option value="100" ${currentTarget === 100 ? 'selected' : ''}>1亿 tokens</option>
+      </select>
+    </th>
     <th>操作</th>
   `;
 }
@@ -319,7 +343,7 @@ function renderOfficialControls(showOfficial, sameOfficialPrice) {
   officialVisibilityHint.classList.toggle('is-warning', !sameOfficialPrice);
 }
 
-function render() {
+function render(options = {}) {
   const amount = getRechargeAmount();
   const sameOfficialPrice = isOfficialPriceSameForAll();
   const showOfficial = shouldShowOfficialColumns();
@@ -360,7 +384,9 @@ function render() {
       </article>`;
   }).join('');
 
-  renderTableHead(showOfficial);
+  if (!options.preserveTableHead) {
+    renderTableHead(showOfficial);
+  }
   rowsEl.innerHTML = ranked.map(provider => `
     <tr>
       <td>${editableCell(provider, 'name', provider.name, 'text', 'aria-label="中转站名称"')}</td>
@@ -566,8 +592,15 @@ async function importProvidersFromFile(file, mode = 'replace') {
   await replaceProvidersFromFile(file);
 }
 
-rechargeInput.addEventListener('input', render);
-targetTokenSelect.addEventListener('change', render);
+tableHeadRow.addEventListener('input', event => {
+  if (event.target?.id !== 'rechargeInput') return;
+  render({ preserveTableHead: true });
+});
+
+tableHeadRow.addEventListener('change', event => {
+  if (event.target?.id !== 'targetTokenSelect') return;
+  render({ preserveTableHead: true });
+});
 
 exportDataBtn.addEventListener('click', exportProviders);
 importDataBtn.addEventListener('click', () => {
