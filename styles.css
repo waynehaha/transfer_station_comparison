@@ -295,7 +295,11 @@ table {
   width: 100%;
   min-width: 1280px;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
+}
+
+table:has(#priceHeadRow[data-official-visible="true"]) {
+  min-width: 1820px;
 }
 
 th, td {
@@ -498,6 +502,18 @@ td.highlight { color: var(--success); font-size: 18px; }
   #priceHeadRow th:nth-child(4),
   #priceRows td:nth-child(4) { width: 7%; min-width: 78px; }
 
+
+
+  #priceHeadRow .official-price-head,
+  #priceRows .official-price-cell {
+    min-width: 130px;
+    width: 130px;
+  }
+
+  #priceRows .official-price-cell .table-input {
+    min-width: 104px;
+    padding: 0 9px;
+  }
 
   #priceHeadRow th:nth-last-child(7),
   #priceRows td:nth-last-child(7),

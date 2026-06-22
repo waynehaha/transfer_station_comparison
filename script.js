@@ -289,12 +289,13 @@ function editableCell(provider, field, value, type = 'number', extra = '') {
 function renderTableHead(showOfficial) {
   const currentAmount = getRechargeAmount();
   const currentTarget = getTargetTokenMillion();
+  tableHeadRow.dataset.officialVisible = String(showOfficial);
   tableHeadRow.innerHTML = `
     <th>中转站</th>
     <th>充值 ¥</th>
     <th>到账 $</th>
     <th>倍率</th>
-    ${showOfficial ? '<th>官方输入价</th><th>官方输出价</th><th>官方缓存价</th>' : ''}
+    ${showOfficial ? '<th class="official-price-head">官方输入价</th><th class="official-price-head">官方输出价</th><th class="official-price-head">官方缓存价</th>' : ''}
     <th>实际输入价</th>
     <th>实际输出价</th>
     <th>实际缓存价</th>
@@ -398,9 +399,9 @@ function render(options = {}) {
       <td>${editableCell(provider, 'usdCredit', provider.usdCredit, 'number', 'min="0.01" step="0.01" aria-label="到账美元"')}</td>
       <td>${editableCell(provider, 'multiplier', provider.multiplier, 'number', 'min="0" step="0.0001" aria-label="倍率"')}</td>
       ${showOfficial ? `
-        <td>${editableCell(provider, 'officialInputPrice', provider.officialInputPrice, 'number', 'min="0" step="0.0001" aria-label="官方输入价"')}</td>
-        <td>${editableCell(provider, 'officialOutputPrice', provider.officialOutputPrice, 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"')}</td>
-        <td>${editableCell(provider, 'officialCachePrice', provider.officialCachePrice, 'number', 'min="0" step="0.0001" aria-label="官方缓存价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, 'officialInputPrice', provider.officialInputPrice, 'number', 'min="0" step="0.0001" aria-label="官方输入价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, 'officialOutputPrice', provider.officialOutputPrice, 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, 'officialCachePrice', provider.officialCachePrice, 'number', 'min="0" step="0.0001" aria-label="官方缓存价"')}</td>
       ` : ''}
       <td class="muted actual-price">$${formatPrice(provider.actualInputPrice)}/M</td>
       <td class="muted actual-price">$${formatPrice(provider.actualOutputPrice)}/M</td>
