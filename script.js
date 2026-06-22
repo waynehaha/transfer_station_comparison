@@ -580,18 +580,26 @@ function renderProviderRow(provider, showOfficial) {
         <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
       </div>`;
 
+  const directPriceEditCells = isEditing && isCnyMode
+    ? `
+      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyInputPrice', viewProvider.cnyInputPrice, '¥', 'min="0" step="0.0001" aria-label="输入价（人民币/M）"')}</td>
+      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyOutputPrice', viewProvider.cnyOutputPrice, '¥', 'min="0.0001" step="0.0001" aria-label="输出价（人民币/M）"')}</td>
+      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyCachePrice', viewProvider.cnyCachePrice, '¥', 'min="0" step="0.0001" aria-label="缓存价（人民币/M）"')}</td>`
+    : `
+      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'input')}</td>
+      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
+      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
+
   const detailCells = detailsCollapsed ? '' : `
       <td>${isEditing ? editInput('rechargeCny', viewProvider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"') : tableText(viewProvider.rechargeCny)}</td>
       <td>${isEditing ? editPrefixedInput(creditField(viewProvider), creditAmount(viewProvider), creditCurrency(viewProvider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`) : `${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}`}</td>
       <td>${isCnyMode ? '<span class="muted muted-dash">-</span>' : (isEditing ? editInput('multiplier', viewProvider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"') : tableText(viewProvider.multiplier))}</td>
       ${showOfficial ? `
-        <td class="official-price-cell">${isEditing ? editInput(originalPriceField(viewProvider, 'input'), rawPriceValue(viewProvider, 'input'), 'number', 'min="0" step="0.0001" aria-label="官方输入价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider)))}</td>
-        <td class="official-price-cell">${isEditing ? editInput(originalPriceField(viewProvider, 'output'), rawPriceValue(viewProvider, 'output'), 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider)))}</td>
-        <td class="official-price-cell">${isEditing ? editInput(originalPriceField(viewProvider, 'cache'), rawPriceValue(viewProvider, 'cache'), 'number', 'min="0" step="0.0001" aria-label="官方缓存价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider)))}</td>
+        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'input'), rawPriceValue(viewProvider, 'input'), 'number', 'min="0" step="0.0001" aria-label="官方输入价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'output'), rawPriceValue(viewProvider, 'output'), 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'cache'), rawPriceValue(viewProvider, 'cache'), 'number', 'min="0" step="0.0001" aria-label="官方缓存价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider))))}</td>
       ` : ''}
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'input')}</td>
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
+      ${directPriceEditCells}`;
 
   return `
     <tr class="${isEditing ? 'is-editing' : ''}">

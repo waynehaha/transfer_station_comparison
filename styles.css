@@ -1392,3 +1392,11 @@ body {
   overscroll-behavior-inline: none;
   overscroll-behavior-block: auto;
 }
+
+.direct-price-edit-cell .prefixed-input {
+  min-width: 118px;
+}
+
+.direct-price-edit-cell .table-input {
+  min-width: 92px;
+}

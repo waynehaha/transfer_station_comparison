@@ -47,7 +47,7 @@
     {
       "id": "fdb53e7a-04d3-4007-9582-8c58e1648113",
       "pricingMode": "usd",
-      "name": "woyao-plus号池-0.16",
+      "name": "woyao-plus号池-0.16-慢",
       "rechargeCny": 100,
       "usdCredit": 100,
       "officialInputPrice": 5,
@@ -89,14 +89,36 @@
       "multiplier": 1
     },
     {
-      "id": "53278f3e-1154-47b4-8603-5e037a9de22b",
+      "id": "8bb1a1f0-c833-4ec3-95d8-7038ccf6adbf",
+      "pricingMode": "usd",
+      "name": "packyapi-API All in 作者推荐的",
+      "rechargeCny": 100,
+      "usdCredit": 100,
+      "officialInputPrice": 2.5,
+      "officialOutputPrice": 15,
+      "officialCachePrice": 0.25,
+      "multiplier": 1
+    },
+    {
+      "id": "a3e8e1a2-17fc-4ef3-bc3e-6a4127029925",
       "pricingMode": "cny",
-      "name": "packyapi-按量付费",
+      "name": "aiaiai001-PRO-微信sen推荐",
       "rechargeCny": 100,
       "cnyCredit": 100,
-      "cnyInputPrice": 2.5,
-      "cnyOutputPrice": 15,
-      "cnyCachePrice": 0.25,
+      "cnyInputPrice": 1.45,
+      "cnyOutputPrice": 3.6,
+      "cnyCachePrice": 0.06,
+      "multiplier": 1
+    },
+    {
+      "id": "83a18009-68e1-4876-9cea-ada73b29ea2f",
+      "pricingMode": "cny",
+      "name": "aiaiai001-plus-微信sen推荐",
+      "rechargeCny": 100,
+      "cnyCredit": 100,
+      "cnyInputPrice": 0.6,
+      "cnyOutputPrice": 3.6,
+      "cnyCachePrice": 0.06,
       "multiplier": 1
     }
   ],
