@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>中转站输出价格对比</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23f97316%27/%3E%3Cpath d=%27M16 42h32M18 32h28M22 22h20%27 stroke=%27white%27 stroke-width=%276%27 stroke-linecap=%27round%27/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">AI 模型中转站价格计算器</p>
+        <h1 id="page-title">看清楚：每充 10 元，到底能换多少输出</h1>
+        <p class="subhead">按 OpenAI 官方价格和渠道倍率自动换算实际价格，直接比较哪个中转站更划算。</p>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="核心结果">
+      <article class="metric-card best-card">
+        <span class="metric-label">当前最划算</span>
+        <strong id="bestName">-</strong>
+        <p><span id="bestOutput">-</span> 百万输出 tokens</p>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">与第二名差距</span>
+        <strong id="bestGap">-</strong>
+        <p>按当前充值金额计算</p>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">数据来源</span>
+        <strong>网页本地数据</strong>
+        <p>官方价默认使用 GPT-5.5：输入 $5、输出 $30、缓存 $0.5，每个渠道可单独修改。</p>
+      </article>
+    </section>
+
+    <section class="panel editor-panel" aria-labelledby="editor-title">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">Manage</p>
+          <h2 id="editor-title">新增渠道</h2>
+        </div>
+        <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
+      </div>
+      <form id="providerForm" class="provider-form">
+        <label>
+          <span>渠道名称</span>
+          <input id="providerName" name="providerName" type="text" placeholder="例如：某某 Pro" required />
+        </label>
+        <label>
+          <span>充值金额（人民币）</span>
+          <input id="providerCny" name="providerCny" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
+        </label>
+        <label>
+          <span>对应美元额度</span>
+          <input id="providerUsd" name="providerUsd" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
+        </label>
+        <label>
+          <span>官方输入价（美元/M）</span>
+          <input id="providerOfficialInput" name="providerOfficialInput" type="number" min="0" step="0.0001" placeholder="默认：5" required />
+        </label>
+        <label>
+          <span>官方输出价（美元/M）</span>
+          <input id="providerOfficialOutput" name="providerOfficialOutput" type="number" min="0.0001" step="0.0001" placeholder="默认：30" required />
+        </label>
+        <label>
+          <span>官方缓存价（美元/M）</span>
+          <input id="providerOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" placeholder="默认：0.5" required />
+        </label>
+        <label>
+          <span>渠道倍率</span>
+          <input id="providerMultiplier" name="providerMultiplier" type="number" min="0" step="0.0001" placeholder="例如：0.3" required />
+        </label>
+        <button type="submit" class="primary-btn">添加到对比</button>
+      </form>
+      <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="ranking-title">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">Ranking</p>
+          <h2 id="ranking-title">输出性价比排名</h2>
+        </div>
+      </div>
+      <div id="cards" class="cards" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="table-title">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">Details</p>
+          <h2 id="table-title">详细换算表</h2>
+        </div>
+      </div>
+      <div class="table-tools table-tools-grid">
+        <div class="table-control money-control" aria-label="充值金额设置">
+          <label for="rechargeInput">按多少人民币计算</label>
+          <div class="compact-money-input">
+            <span>¥</span>
+            <input id="rechargeInput" type="number" min="1" step="1" value="10" inputmode="decimal" />
+          </div>
+        </div>
+        <div class="table-control">
+          <label for="targetTokenSelect">目标输出量</label>
+          <select id="targetTokenSelect">
+            <option value="1">100万 tokens</option>
+            <option value="10">1000万 tokens</option>
+            <option value="100" selected>1亿 tokens</option>
+          </select>
+        </div>
+        <p id="officialVisibilityHint">当前所有渠道官方价一致，表格默认只展示实际价格。</p>
+        <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr id="priceHeadRow"></tr>
+          </thead>
+          <tbody id="priceRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="formula panel" aria-labelledby="formula-title">
+      <p class="eyebrow">Formula</p>
+      <h2 id="formula-title">怎么算的</h2>
+      <p>先用「官方输出价 × 渠道倍率」得到实际输出价。表格会按你输入的人民币金额计算可买多少输出，也能反算 100万 / 1000万 / 1亿输出需要多少钱。</p>
+      <p class="formula-box">目标输出价格 = 目标输出量 × 实际输出价 ÷（到账美元 ÷ 充值金额）</p>
+    </section>
+  </main>
+  <script src="./script.js"></script>
+</body>
+</html>
