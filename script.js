@@ -42,6 +42,7 @@ const defaultProviders = [
 let providers = cloneDefaultProviders();
 let forceShowOfficialPrices = false;
 let saveTimer = null;
+let importMode = 'replace';
 
 const rechargeInput = document.querySelector('#rechargeInput');
 const targetTokenSelect = document.querySelector('#targetTokenSelect');
@@ -54,6 +55,7 @@ const bestGapEl = document.querySelector('#bestGap');
 const restoreDefaultsBtn = document.querySelector('#restoreDefaultsBtn');
 const exportDataBtn = document.querySelector('#exportDataBtn');
 const importDataBtn = document.querySelector('#importDataBtn');
+const mergeImportDataBtn = document.querySelector('#mergeImportDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const formMessage = document.querySelector('#formMessage');
@@ -441,7 +443,95 @@ function parseImportedProviders(rawText) {
   return normalized;
 }
 
-async function importProvidersFromFile(file) {
+function coreProviderData(provider) {
+  return {
+    name: String(provider.name || '').trim(),
+    rechargeCny: Number(provider.rechargeCny),
+    usdCredit: Number(provider.usdCredit),
+    officialInputPrice: Number(provider.officialInputPrice),
+    officialOutputPrice: Number(provider.officialOutputPrice),
+    officialCachePrice: Number(provider.officialCachePrice),
+    multiplier: Number(provider.multiplier),
+  };
+}
+
+function providerDataKey(provider) {
+  return JSON.stringify(coreProviderData(provider));
+}
+
+function providerValueKey(provider) {
+  const data = coreProviderData(provider);
+  delete data.name;
+  return JSON.stringify(data);
+}
+
+function isImportedVersionName(name, baseName) {
+  return name === `${baseName}（导入版）` || new RegExp(`^${escapeRegExp(baseName)}（导入版 \\d+）$`).test(name);
+}
+
+function escapeRegExp(text) {
+  return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hasSameImportedVersion(baseName, importedProvider, providerList) {
+  const valueKey = providerValueKey(importedProvider);
+  return providerList.some(provider => (
+    isImportedVersionName(provider.name, baseName) && providerValueKey(provider) === valueKey
+  ));
+}
+
+function makeUniqueImportedName(baseName, usedNames) {
+  const firstName = `${baseName}（导入版）`;
+  if (!usedNames.has(firstName)) {
+    usedNames.add(firstName);
+    return firstName;
+  }
+
+  let index = 2;
+  while (usedNames.has(`${baseName}（导入版 ${index}）`)) {
+    index += 1;
+  }
+  const nextName = `${baseName}（导入版 ${index}）`;
+  usedNames.add(nextName);
+  return nextName;
+}
+
+function mergeImportedProviders(importedProviders) {
+  const existingKeys = new Set(providers.map(providerDataKey));
+  const usedNames = new Set(providers.map(provider => provider.name));
+  const merged = [...providers];
+  const stats = { added: 0, skipped: 0, renamed: 0 };
+
+  importedProviders.forEach(importedProvider => {
+    const importedKey = providerDataKey(importedProvider);
+    if (existingKeys.has(importedKey)) {
+      stats.skipped += 1;
+      return;
+    }
+
+    const nextProvider = { ...importedProvider, id: crypto.randomUUID() };
+    if (usedNames.has(nextProvider.name)) {
+      if (hasSameImportedVersion(nextProvider.name, nextProvider, merged)) {
+        existingKeys.add(importedKey);
+        stats.skipped += 1;
+        return;
+      }
+      nextProvider.name = makeUniqueImportedName(nextProvider.name, usedNames);
+      stats.renamed += 1;
+    } else {
+      usedNames.add(nextProvider.name);
+    }
+
+    merged.push(nextProvider);
+    existingKeys.add(importedKey);
+    existingKeys.add(providerDataKey(nextProvider));
+    stats.added += 1;
+  });
+
+  return { merged, stats };
+}
+
+async function replaceProvidersFromFile(file) {
   const rawText = await file.text();
   const importedProviders = parseImportedProviders(rawText);
   providers = importedProviders;
@@ -449,19 +539,45 @@ async function importProvidersFromFile(file) {
   await persistProviders();
   forceShowOfficialPrices = false;
   render();
-  showMessage(`已导入 ${providers.length} 个渠道，并保存到项目文件。`);
+  showMessage(`已覆盖导入 ${providers.length} 个渠道，并保存到项目文件。`);
+}
+
+async function mergeProvidersFromFile(file) {
+  const rawText = await file.text();
+  const importedProviders = parseImportedProviders(rawText);
+  const { merged, stats } = mergeImportedProviders(importedProviders);
+  providers = merged;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(providers));
+  await persistProviders();
+  render();
+  showMessage(`合并完成：新增 ${stats.added} 个，跳过重复 ${stats.skipped} 个，同名改名 ${stats.renamed} 个。`);
+}
+
+async function importProvidersFromFile(file, mode = 'replace') {
+  if (mode === 'merge') {
+    await mergeProvidersFromFile(file);
+    return;
+  }
+  await replaceProvidersFromFile(file);
 }
 
 rechargeInput.addEventListener('input', render);
 targetTokenSelect.addEventListener('change', render);
 
 exportDataBtn.addEventListener('click', exportProviders);
-importDataBtn.addEventListener('click', () => importDataInput.click());
+importDataBtn.addEventListener('click', () => {
+  importMode = 'replace';
+  importDataInput.click();
+});
+mergeImportDataBtn.addEventListener('click', () => {
+  importMode = 'merge';
+  importDataInput.click();
+});
 importDataInput.addEventListener('change', async () => {
   const file = importDataInput.files?.[0];
   if (!file) return;
   try {
-    await importProvidersFromFile(file);
+    await importProvidersFromFile(file, importMode);
   } catch (error) {
     console.error('导入失败。', error);
     showMessage('导入失败，请确认选择的是正确的数据 JSON 文件。');
