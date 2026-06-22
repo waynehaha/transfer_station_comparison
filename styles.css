@@ -1400,3 +1400,93 @@ body {
 .direct-price-edit-cell .table-input {
   min-width: 92px;
 }
+
+/* 线上只读展示：隐藏维护入口，只保留查看和换算 */
+body.is-readonly .editor-panel,
+body.is-readonly .inline-data-actions {
+  display: none;
+}
+
+/* 只读模式没有“操作”列，右侧只固定最后两列，避免把普通内容误当固定列 */
+body.is-readonly #priceHeadRow th:nth-last-child(3),
+body.is-readonly #priceRows td:nth-last-child(3) {
+  position: static;
+  right: auto;
+  z-index: auto;
+  width: auto;
+  min-width: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.is-readonly #priceHeadRow th:nth-last-child(2),
+body.is-readonly #priceRows td:nth-last-child(2) {
+  position: sticky;
+  right: 190px;
+  z-index: 5;
+  width: 150px;
+  min-width: 150px;
+}
+
+body.is-readonly #priceHeadRow th:last-child,
+body.is-readonly #priceRows td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 6;
+  width: 190px;
+  min-width: 190px;
+}
+
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(3),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(3),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(3),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(3),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(3) {
+  position: static;
+  right: auto;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:last-child,
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:last-child,
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:last-child,
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:last-child {
+  z-index: 40;
+  background: #24201f;
+  background-clip: padding-box;
+}
+
+body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
+body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2) {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 760px) {
+  body.is-readonly #priceHeadRow th:nth-last-child(2),
+  body.is-readonly #priceRows td:nth-last-child(2) {
+    right: 158px;
+    width: 132px;
+    min-width: 132px;
+  }
+
+  body.is-readonly #priceHeadRow th:last-child,
+  body.is-readonly #priceRows td:last-child {
+    width: 158px;
+    min-width: 158px;
+  }
+}

@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'modelRelayPriceProviders:v4';
 const API_URL = '/api/providers';
+const STATIC_DATA_URL = './data/providers.json';
 const CNY_PER_USD = 7.2;
 const OFFICIAL_PRICE = {
   inputPrice: 5,
@@ -52,6 +53,7 @@ let editingProviderId = null;
 let editDraft = null;
 let officialVisibleBeforeEdit = null;
 let detailsCollapsed = false;
+let isReadOnlyMode = false;
 
 const rowsEl = document.querySelector('#priceRows');
 const tableHeadRow = document.querySelector('#priceHeadRow');
@@ -77,12 +79,25 @@ function loadProviders() {
   return cloneDefaultProviders();
 }
 
-async function loadProjectProviders() {
-  const response = await fetch(API_URL, { cache: 'no-store' });
-  if (!response.ok) throw new Error('项目数据读取失败');
+async function fetchProviderList(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error('数据读取失败');
   const data = await response.json();
-  const list = Array.isArray(data.providers) ? data.providers : [];
+  const list = Array.isArray(data.providers) ? data.providers : data;
+  if (!Array.isArray(list)) return [];
   return list.map(normalizeProvider).filter(Boolean);
+}
+
+async function loadProjectProviders() {
+  try {
+    const list = await fetchProviderList(API_URL);
+    setReadOnlyMode(false);
+    return list;
+  } catch (apiError) {
+    const list = await fetchProviderList(STATIC_DATA_URL);
+    setReadOnlyMode(true);
+    return list;
+  }
 }
 
 function readLegacyBrowserProviders() {
@@ -177,7 +192,20 @@ function normalizeProvider(provider) {
   };
 }
 
+function setReadOnlyMode(nextValue) {
+  isReadOnlyMode = Boolean(nextValue);
+  document.body.classList.toggle('is-readonly', isReadOnlyMode);
+  tableWrap?.classList.toggle('is-readonly', isReadOnlyMode);
+}
+
+function ensureWritableMode(message = '当前是只读展示模式，不能在线修改。') {
+  if (!isReadOnlyMode) return true;
+  showMessage(message);
+  return false;
+}
+
 async function persistProviders() {
+  if (isReadOnlyMode) throw new Error('只读展示模式不能保存');
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -187,6 +215,10 @@ async function persistProviders() {
 }
 
 function saveProviders() {
+  if (isReadOnlyMode) {
+    showMessage('当前是只读展示模式，不能在线保存。');
+    return;
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(providers));
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(async () => {
@@ -209,7 +241,7 @@ async function initializeData() {
 
     providers = projectProviders.length ? projectProviders : defaults;
 
-    if (hasLegacyChanges && projectLooksDefault && !localStorage.getItem('projectDataMigrated:v1')) {
+    if (!isReadOnlyMode && hasLegacyChanges && projectLooksDefault && !localStorage.getItem('projectDataMigrated:v1')) {
       providers = legacyProviders;
       saveProviders();
       localStorage.setItem('projectDataMigrated:v1', 'true');
@@ -219,7 +251,8 @@ async function initializeData() {
     console.warn('项目数据读取失败，临时使用浏览器数据。', error);
     const legacyProviders = readLegacyBrowserProviders();
     providers = legacyProviders.length ? legacyProviders : cloneDefaultProviders();
-    showMessage('没有连上项目保存服务，本次修改可能只能临时保存在浏览器里。');
+    setReadOnlyMode(false);
+    showMessage('没有读取到项目数据，临时使用浏览器数据。');
   }
   setFormDefaults();
   render();
@@ -569,16 +602,18 @@ function renderProviderRow(provider, showOfficial) {
   const isEditing = editingProviderId === provider.id && editDraft;
   const viewProvider = isEditing ? editDraft : provider;
   const isCnyMode = providerMode(viewProvider) === 'cny';
-  const actionButtons = isEditing
-    ? `<div class="row-actions">
-        <button class="save-btn" type="button" data-id="${provider.id}" aria-label="保存 ${escapeHtml(viewProvider.name)}">保存</button>
-        <button class="cancel-btn" type="button" data-id="${provider.id}" aria-label="取消编辑 ${escapeHtml(viewProvider.name)}">取消</button>
-        <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
-      </div>`
-    : `<div class="row-actions">
-        <button class="edit-btn" type="button" data-id="${provider.id}" aria-label="编辑 ${escapeHtml(viewProvider.name)}">编辑</button>
-        <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
-      </div>`;
+  const actionButtons = isReadOnlyMode
+    ? ''
+    : (isEditing
+      ? `<div class="row-actions">
+          <button class="save-btn" type="button" data-id="${provider.id}" aria-label="保存 ${escapeHtml(viewProvider.name)}">保存</button>
+          <button class="cancel-btn" type="button" data-id="${provider.id}" aria-label="取消编辑 ${escapeHtml(viewProvider.name)}">取消</button>
+          <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
+        </div>`
+      : `<div class="row-actions">
+          <button class="edit-btn" type="button" data-id="${provider.id}" aria-label="编辑 ${escapeHtml(viewProvider.name)}">编辑</button>
+          <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
+        </div>`);
 
   const directPriceEditCells = isEditing && isCnyMode
     ? `
@@ -607,7 +642,7 @@ function renderProviderRow(provider, showOfficial) {
       ${detailCells}
       <td class="highlight result-output">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>
       <td class="highlight price-cost">${formatMoney(costForOutput(viewProvider, getTargetTokenMillion()))}</td>
-      <td>${actionButtons}</td>
+      ${isReadOnlyMode ? '' : `<td>${actionButtons}</td>`}
     </tr>`;
 }
 
@@ -618,6 +653,7 @@ function renderTableHead(showOfficial) {
   tableHeadRow.dataset.officialVisible = String(showOfficial);
   tableHeadRow.dataset.displayMode = priceDisplayMode;
   tableHeadRow.dataset.detailsCollapsed = String(detailsCollapsed);
+  tableHeadRow.dataset.readonly = String(isReadOnlyMode);
   tableHeadRow.innerHTML = `
     <th>中转站</th>
     ${detailsCollapsed ? '' : `
@@ -649,15 +685,15 @@ function renderTableHead(showOfficial) {
         <span>输出价格</span>
       </div>
     </th>
-    <th>操作</th>
+    ${isReadOnlyMode ? '' : '<th>操作</th>'}
   `;
 }
 
 function renderEmptyState() {
   const showOfficial = shouldShowOfficialColumns();
   renderTableHead(showOfficial);
-  const columnCount = detailsCollapsed ? 4 : (showOfficial ? 13 : 10);
-  rowsEl.innerHTML = `<tr><td colspan="${columnCount}" class="muted">暂无渠道，请先新增。</td></tr>`;
+  const columnCount = (detailsCollapsed ? 3 : (showOfficial ? 12 : 9)) + (isReadOnlyMode ? 0 : 1);
+  rowsEl.innerHTML = `<tr><td colspan="${columnCount}" class="muted">${isReadOnlyMode ? '暂无渠道数据。' : '暂无渠道，请先新增。'}</td></tr>`;
   scheduleTableOverflowCheck();
 }
 
@@ -699,6 +735,7 @@ function render(options = {}) {
   const amount = getRechargeAmount();
   const sameOfficialPrice = isOfficialPriceSameForAll();
   const showOfficial = shouldShowOfficialColumns();
+  setReadOnlyMode(isReadOnlyMode);
   renderDisplayModeControls();
   renderDetailsToggleControl();
   renderOfficialControls(showOfficial, sameOfficialPrice);
@@ -888,6 +925,7 @@ function mergeImportedProviders(importedProviders) {
 }
 
 async function replaceProvidersFromFile(file) {
+  if (!ensureWritableMode()) return;
   const rawText = await file.text();
   const importedProviders = parseImportedProviders(rawText);
   providers = importedProviders;
@@ -902,6 +940,7 @@ async function replaceProvidersFromFile(file) {
 }
 
 async function mergeProvidersFromFile(file) {
+  if (!ensureWritableMode()) return;
   const rawText = await file.text();
   const importedProviders = parseImportedProviders(rawText);
   const { merged, stats } = mergeImportedProviders(importedProviders);
@@ -931,8 +970,12 @@ tableHeadRow.addEventListener('change', event => {
   render({ preserveTableHead: true });
 });
 
-exportDataBtn.addEventListener('click', exportProviders);
+exportDataBtn.addEventListener('click', () => {
+  if (!ensureWritableMode()) return;
+  exportProviders();
+});
 importDataBtn.addEventListener('click', () => {
+  if (!ensureWritableMode()) return;
   importMode = 'merge';
   importDataInput.click();
 });
@@ -950,6 +993,7 @@ importDataInput.addEventListener('change', async () => {
 });
 
 restoreDefaultsBtn.addEventListener('click', () => {
+  if (!ensureWritableMode()) return;
   providers = cloneDefaultProviders();
   clearEditState({ restoreOfficial: false });
   forceShowOfficialPrices = false;
@@ -986,6 +1030,7 @@ providerPricingMode.addEventListener('change', () => {
 
 providerForm.addEventListener('submit', event => {
   event.preventDefault();
+  if (!ensureWritableMode()) return;
   const formData = new FormData(providerForm);
   const pricingMode = formData.get('providerPricingMode') === 'cny' ? 'cny' : 'usd';
   const baseProvider = {
@@ -1027,6 +1072,8 @@ providerForm.addEventListener('submit', event => {
 });
 
 rowsEl.addEventListener('click', event => {
+  if (isReadOnlyMode) return;
+
   const editButton = event.target.closest('.edit-btn');
   if (editButton) {
     beginEditProvider(editButton.dataset.id);
