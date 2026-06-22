@@ -873,6 +873,10 @@ td.highlight { color: var(--success); font-size: 18px; }
   .inline-data-actions {
     margin-right: 0;
   }
+
+  .display-mode-control {
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 640px) {
@@ -881,11 +885,510 @@ td.highlight { color: var(--success); font-size: 18px; }
     justify-content: stretch;
   }
 
-  .inline-data-actions {
+  .inline-data-actions,
+  .display-mode-control {
     width: 100%;
   }
 
   .manage-actions .ghost-btn, .table-action-group .ghost-btn {
     flex: 1 1 auto;
   }
+}
+
+.display-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.display-mode-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.display-mode-label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.display-mode-btn {
+  min-height: 34px;
+  border-color: transparent;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.display-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.display-mode-btn.is-active {
+  border-color: rgba(249, 115, 22, 0.55);
+  background: rgba(249, 115, 22, 0.22);
+  color: #ffedd5;
+}
+
+@media (max-width: 760px) {
+  .display-switch {
+    width: 100%;
+    justify-content: stretch;
+    border-radius: 18px;
+  }
+
+  .display-mode-control {
+    width: 100%;
+  }
+
+  .display-mode-btn {
+    flex: 1 1 auto;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .display-mode-control {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .display-switch {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-radius: 18px;
+  }
+
+  .display-mode-btn {
+    width: 100%;
+  }
+}
+
+.table-value {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.provider-name-value {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.currency-symbol {
+  margin-right: 4px;
+  color: var(--primary);
+  font-weight: 950;
+}
+
+.table-select {
+  min-width: 118px;
+}
+
+tr.is-editing {
+  background: rgba(249, 115, 22, 0.075);
+  box-shadow: inset 3px 0 0 rgba(249, 115, 22, 0.75);
+}
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+  min-height: 36px;
+  padding: 0 13px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.edit-btn {
+  border-color: rgba(96, 165, 250, 0.42);
+  background: rgba(96, 165, 250, 0.12);
+  color: #bfdbfe;
+}
+
+.edit-btn:hover {
+  background: rgba(96, 165, 250, 0.22);
+}
+
+.save-btn {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.14);
+  color: #bbf7d0;
+}
+
+.save-btn:hover {
+  background: rgba(52, 211, 153, 0.24);
+}
+
+.cancel-btn {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--muted);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 760px) {
+  .row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 1100px) {
+  #priceHeadRow th:last-child,
+  #priceRows td:last-child {
+    width: 10%;
+    min-width: 148px;
+  }
+}
+
+.provider-name-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+}
+
+.provider-mode-badge {
+  min-height: 26px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+.provider-name-stack .table-select {
+  min-width: 128px;
+}
+
+.head-stacked-control {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  color: #fed7aa;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.head-stacked-control span {
+  color: #fed7aa;
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.head-stacked-control select {
+  width: 138px;
+  min-height: 38px;
+  border: 1px solid rgba(249, 115, 22, 0.42);
+  border-radius: 13px;
+  padding: 0 9px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0;
+  outline: 0;
+}
+
+/* 表头两层对齐：第一排标题保持一条线，目标输出价标题单独落到第二行 */
+#priceHeadRow th {
+  vertical-align: top;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+#priceHeadRow .calculation-head {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+#priceHeadRow .output-condition-head .head-inline-control,
+#priceHeadRow .target-condition-head .head-stacked-control {
+  min-height: 56px;
+}
+
+#priceHeadRow .output-condition-head .head-inline-control {
+  align-items: flex-start;
+  padding-top: 0;
+}
+
+#priceHeadRow .output-condition-head .head-inline-control > label,
+#priceHeadRow .output-condition-head .head-inline-control > span {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+}
+
+#priceHeadRow .target-condition-head .head-stacked-control {
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+#priceHeadRow .target-condition-head .head-stacked-control span {
+  display: block;
+  padding-left: 0;
+  line-height: 1.2;
+}
+
+#priceHeadRow th:not(.calculation-head) {
+  padding-top: 22px;
+}
+
+/* 横向滚动时固定右侧核心结果列：每 ¥ 输出 / 目标输出价格 / 操作 */
+.table-wrap {
+  position: relative;
+}
+
+#priceHeadRow th:nth-last-child(3),
+#priceRows td:nth-last-child(3) {
+  position: sticky;
+  right: 350px;
+  z-index: 4;
+  width: 150px;
+  min-width: 150px;
+  background: rgba(36, 31, 31, 0.98);
+}
+
+#priceHeadRow th:nth-last-child(2),
+#priceRows td:nth-last-child(2) {
+  position: sticky;
+  right: 160px;
+  z-index: 5;
+  width: 190px;
+  min-width: 190px;
+  background: rgba(36, 31, 31, 0.98);
+}
+
+#priceHeadRow th:last-child,
+#priceRows td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 6;
+  width: 160px;
+  min-width: 160px;
+  background: rgba(36, 31, 31, 0.98);
+}
+
+#priceHeadRow th:nth-last-child(3) {
+  box-shadow: -14px 0 24px rgba(0, 0, 0, 0.22);
+}
+
+#priceRows td:nth-last-child(3) {
+  box-shadow: -14px 0 24px rgba(0, 0, 0, 0.22);
+}
+
+#priceHeadRow th:nth-last-child(-n + 3) {
+  z-index: 8;
+}
+
+#priceRows tr.is-editing td:nth-last-child(-n + 3) {
+  background: rgba(52, 38, 29, 0.98);
+}
+
+@media (max-width: 760px) {
+  #priceHeadRow th:nth-last-child(3),
+  #priceRows td:nth-last-child(3) {
+    right: 300px;
+    width: 132px;
+    min-width: 132px;
+  }
+
+  #priceHeadRow th:nth-last-child(2),
+  #priceRows td:nth-last-child(2) {
+    right: 142px;
+    width: 158px;
+    min-width: 158px;
+  }
+
+  #priceHeadRow th:last-child,
+  #priceRows td:last-child {
+    width: 142px;
+    min-width: 142px;
+  }
+}
+
+/* 固定结果列只保留轻分割线，不做独立背景面板 */
+#priceHeadRow th:nth-last-child(3),
+#priceRows td:nth-last-child(3),
+#priceHeadRow th:nth-last-child(2),
+#priceRows td:nth-last-child(2),
+#priceHeadRow th:last-child,
+#priceRows td:last-child {
+  background: var(--sticky-cell-bg, transparent);
+}
+
+#priceHeadRow th:nth-last-child(3),
+#priceRows td:nth-last-child(3) {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.11);
+}
+
+#priceRows tr.is-editing td:nth-last-child(-n + 3) {
+  background: rgba(249, 115, 22, 0.075);
+}
+
+/* 默认不显示分割线；只有表格确实需要横向滚动时才显示 */
+#priceHeadRow th:nth-last-child(3),
+#priceRows td:nth-last-child(3) {
+  box-shadow: none;
+}
+
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(3) {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.11);
+}
+
+/* 固定列发生覆盖时，用接近表格底色的轻遮挡层避免文字叠穿；视觉上不做独立面板 */
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+.table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
+.table-wrap.has-horizontal-overflow #priceRows td:last-child {
+  background: rgba(36, 31, 31, 0.985);
+  background-clip: padding-box;
+}
+
+.table-wrap.has-horizontal-overflow #priceRows tr.is-editing td:nth-last-child(-n + 3) {
+  background: rgba(52, 38, 29, 0.985);
+  background-clip: padding-box;
+}
+
+/* 更克制的固定列覆盖态：只在真正横向滑动后启用 */
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(2),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(2),
+.table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
+.table-wrap.has-horizontal-overflow #priceRows td:last-child {
+  background: transparent;
+}
+
+.table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-horizontal-overflow #priceRows td:nth-last-child(3) {
+  box-shadow: none;
+}
+
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:last-child,
+.table-wrap.is-horizontal-scrolled #priceRows td:last-child {
+  background: rgba(35, 30, 29, 0.975);
+  background-clip: padding-box;
+}
+
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(3) {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.table-wrap.is-horizontal-scrolled #priceRows tr.is-editing td:nth-last-child(-n + 3) {
+  background: rgba(52, 38, 29, 0.975);
+  background-clip: padding-box;
+}
+
+/* 宽度不够时，右侧固定列会覆盖左侧内容：此时才启用轻遮挡和分割线 */
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(2),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:last-child,
+.table-wrap.is-horizontal-scrolled #priceRows td:last-child {
+  background: transparent;
+}
+
+.table-wrap.is-horizontal-scrolled #priceHeadRow th:nth-last-child(3),
+.table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(3) {
+  box-shadow: none;
+}
+
+.table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(3),
+.table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
+.table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2),
+.table-wrap.has-fixed-column-overlap #priceHeadRow th:last-child,
+.table-wrap.has-fixed-column-overlap #priceRows td:last-child {
+  z-index: 40;
+  background: #24201f;
+  background-clip: padding-box;
+}
+
+.table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(3),
+.table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(3) {
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(-n + 3) {
+  z-index: 50;
+}
+
+.table-wrap.has-fixed-column-overlap #priceRows tr.is-editing td:nth-last-child(-n + 3) {
+  background: #35261d;
+  background-clip: padding-box;
+}
+
+/* 禁止页面整体横向滚动，只保留表格内部横向滚动 */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-shell,
+.panel,
+.hero-copy,
+.editor-panel,
+.formula {
+  max-width: 100%;
+}
+
+.table-wrap {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+
+/* 表格内部滚动到边界时不把惯性/回弹传给页面 */
+.table-wrap {
+  overscroll-behavior: none;
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* 只限制表格横向边界，不拦截页面上下滚动 */
+.table-wrap {
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: auto;
+  overscroll-behavior-inline: none;
+  overscroll-behavior-block: auto;
 }

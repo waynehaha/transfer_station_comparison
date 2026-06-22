@@ -2,6 +2,7 @@
   "providers": [
     {
       "id": "7a6b3cc0-0472-475f-8d84-a1fa36575600",
+      "pricingMode": "usd",
       "name": "su8-max",
       "rechargeCny": 12,
       "usdCredit": 100,
@@ -12,6 +13,7 @@
     },
     {
       "id": "c5ffc964-8622-443f-9420-04927c76d164",
+      "pricingMode": "usd",
       "name": "woyao-0.3 Pro",
       "rechargeCny": 100,
       "usdCredit": 100,
@@ -22,6 +24,7 @@
     },
     {
       "id": "6a0f6fee-234a-4733-9eec-a29914b1e215",
+      "pricingMode": "usd",
       "name": "TOK-Pro-0.4",
       "rechargeCny": 100,
       "usdCredit": 100,
@@ -32,6 +35,7 @@
     },
     {
       "id": "dcdb3174-9267-485d-9954-8a0df88c6e6c",
+      "pricingMode": "usd",
       "name": "su8-按量付费-0.5",
       "rechargeCny": 30,
       "usdCredit": 30,
@@ -42,6 +46,7 @@
     },
     {
       "id": "fdb53e7a-04d3-4007-9582-8c58e1648113",
+      "pricingMode": "usd",
       "name": "woyao-plus号池-0.16",
       "rechargeCny": 100,
       "usdCredit": 100,
@@ -52,6 +57,7 @@
     },
     {
       "id": "e3891474-71b0-4f2d-8579-08aa6e0fd583",
+      "pricingMode": "usd",
       "name": "TOK-Plus-0.25",
       "rechargeCny": 100,
       "usdCredit": 100,
@@ -62,6 +68,7 @@
     },
     {
       "id": "cad48ff4-5299-4fa6-892d-27eb75203e93",
+      "pricingMode": "usd",
       "name": "官方Pro-5倍",
       "rechargeCny": 728,
       "usdCredit": 4500,
@@ -72,6 +79,7 @@
     },
     {
       "id": "bbf0dd9a-f66a-4194-95da-b51d431675bd",
+      "pricingMode": "usd",
       "name": "官方Pro-20倍",
       "rechargeCny": 1456,
       "usdCredit": 12000,
@@ -81,14 +89,15 @@
       "multiplier": 1
     },
     {
-      "id": "0b072111-75d2-4852-b4a4-f416ccf3b7a1",
+      "id": "53278f3e-1154-47b4-8603-5e037a9de22b",
+      "pricingMode": "cny",
       "name": "packyapi-按量付费",
       "rechargeCny": 100,
-      "usdCredit": 100,
-      "officialInputPrice": 5,
-      "officialOutputPrice": 30,
-      "officialCachePrice": 0.5,
-      "multiplier": 0.076
+      "cnyCredit": 100,
+      "cnyInputPrice": 2.5,
+      "cnyOutputPrice": 15,
+      "cnyCachePrice": 0.25,
+      "multiplier": 1
     }
   ],
   "note": "中转站价格对比工具的数据文件。这个文件保存在项目里，换浏览器也不会丢。"

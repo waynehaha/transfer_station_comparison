@@ -17,24 +17,6 @@
       </div>
     </section>
 
-    <section class="summary-grid" aria-label="核心结果">
-      <article class="metric-card best-card">
-        <span class="metric-label">当前最划算</span>
-        <strong id="bestName">-</strong>
-        <p><span id="bestOutput">-</span> 百万输出 tokens</p>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">与第二名差距</span>
-        <strong id="bestGap">-</strong>
-        <p>按当前充值金额计算</p>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">数据来源</span>
-        <strong>网页本地数据</strong>
-        <p>官方价默认使用 GPT-5.5：输入 $5、输出 $30、缓存 $0.5，每个渠道可单独修改。</p>
-      </article>
-    </section>
-
     <section class="panel editor-panel" aria-labelledby="editor-title">
       <div class="section-title-row">
         <div>
@@ -85,16 +67,6 @@
       <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
     </section>
 
-    <section class="panel" aria-labelledby="ranking-title">
-      <div class="section-title-row">
-        <div>
-          <p class="eyebrow">Ranking</p>
-          <h2 id="ranking-title">输出性价比排名</h2>
-        </div>
-      </div>
-      <div id="cards" class="cards" aria-live="polite"></div>
-    </section>
-
     <section class="panel" aria-labelledby="table-title">
       <div class="section-title-row details-title-row">
         <div>
@@ -102,12 +74,21 @@
           <h2 id="table-title">详细换算表</h2>
         </div>
         <div class="table-action-group">
+          <div class="display-mode-control">
+            <span class="display-mode-label">价格显示</span>
+            <div class="display-switch" role="group" aria-label="价格显示方式">
+              <button type="button" class="display-mode-btn is-active" data-display-mode="original" aria-pressed="true">原始价格</button>
+              <button type="button" class="display-mode-btn" data-display-mode="cny" aria-pressed="false">统一人民币</button>
+              <button type="button" class="display-mode-btn" data-display-mode="usd" aria-pressed="false">统一美元</button>
+            </div>
+          </div>
           <div class="inline-data-actions" aria-label="数据导入导出">
             <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
             <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
           </div>
-          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="表格默认展示统一折算后的人民币成本。需要查看或修改原始单价时，可点击“显示原始价”。" data-tooltip="表格默认展示统一折算后的人民币成本。需要查看或修改原始单价时，可点击“显示原始价”。">?</span>
-          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示原始价</button>
+          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。" data-tooltip="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。">?</span>
+          <button id="detailsToggleBtn" type="button" class="ghost-btn" aria-pressed="false">收起基础参数</button>
+          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -123,8 +104,8 @@
     <section class="formula panel" aria-labelledby="formula-title">
       <p class="eyebrow">Formula</p>
       <h2 id="formula-title">怎么算的</h2>
-      <p>先用「官方输出价 × 渠道倍率」得到实际输出价。表格会按你输入的人民币金额计算可买多少输出，也能反算 100万 / 1000万 / 1亿输出需要多少钱。</p>
-      <p class="formula-box">目标输出价格 = 目标输出量 × 实际输出价 ÷（到账美元 ÷ 充值金额）</p>
+      <p>默认展示每个渠道自己的原始报价。切到统一人民币或统一美元后，表格会把不同计价方式换成同一种货币，方便横向比较。</p>
+      <p class="formula-box">目标输出价格 = 目标输出量 × 统一人民币输出价；统一美元按 ¥7.2 ≈ $1 估算</p>
     </section>
   </main>
   <script src="./script.js"></script>
