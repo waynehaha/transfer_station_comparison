@@ -488,22 +488,22 @@ td.highlight { color: var(--success); font-size: 18px; }
   #priceRows td { width: auto; }
 
   #priceHeadRow th:first-child,
-  #priceRows td:first-child { min-width: 190px; }
+  #priceRows td:first-child { min-width: 178px; }
 
   #priceHeadRow th:nth-child(2),
   #priceRows td:nth-child(2),
   #priceHeadRow th:nth-child(3),
   #priceRows td:nth-child(3),
   #priceHeadRow th:nth-child(4),
-  #priceRows td:nth-child(4) { min-width: 140px; }
+  #priceRows td:nth-child(4) { min-width: 112px; }
 
   #priceHeadRow th:nth-last-child(4),
   #priceRows td:nth-last-child(4),
   #priceHeadRow th:nth-last-child(3),
-  #priceRows td:nth-last-child(3) { min-width: 130px; }
+  #priceRows td:nth-last-child(3) { min-width: 120px; }
 
   #priceHeadRow th:nth-last-child(2),
-  #priceRows td:nth-last-child(2) { min-width: 170px; }
+  #priceRows td:nth-last-child(2) { min-width: 180px; }
 
   #priceHeadRow th:last-child,
   #priceRows td:last-child { min-width: 86px; }
@@ -599,25 +599,42 @@ td.highlight { color: var(--success); font-size: 18px; }
   white-space: nowrap;
 }
 
+
 .calculation-head {
-  min-width: 170px;
-  vertical-align: top;
+  min-width: 180px;
+  vertical-align: middle;
 }
 
-.calculation-head label {
-  display: block;
-  margin-bottom: 8px;
+.output-condition-head {
+  min-width: 176px;
+}
+
+.target-condition-head {
+  min-width: 210px;
+}
+
+.head-inline-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   color: #fed7aa;
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 950;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.head-inline-control label,
+.head-inline-control span {
+  color: #fed7aa;
+  font-size: 13px;
+  font-weight: 950;
   white-space: nowrap;
 }
 
 .head-money-input,
 .calculation-head select {
-  width: 100%;
-  min-height: 40px;
+  min-height: 38px;
   border: 1px solid rgba(249, 115, 22, 0.42);
   border-radius: 13px;
   background: rgba(0, 0, 0, 0.22);
@@ -629,31 +646,33 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .head-money-input {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 4px;
+  width: 82px;
+  padding: 0 9px;
 }
 
 .head-money-input span {
   color: var(--primary);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 950;
 }
 
 .head-money-input input {
   width: 100%;
-  min-width: 48px;
+  min-width: 0;
   border: 0;
   outline: 0;
   background: transparent;
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 950;
 }
 
 .calculation-head select {
-  padding: 0 10px;
+  width: 116px;
+  padding: 0 9px;
 }
 
 .hint-icon {
@@ -727,11 +746,23 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .table-action-group {
-  grid-column: 4;
+  grid-column: 2;
   align-items: center;
 }
 
 .manage-actions .ghost-btn, .table-action-group .ghost-btn {
+  min-height: 42px;
+}
+
+.inline-data-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-right: 28px;
+}
+
+.inline-data-actions .ghost-btn {
   min-height: 42px;
 }
 
@@ -750,12 +781,20 @@ td.highlight { color: var(--success); font-size: 18px; }
   .details-data-actions .ghost-btn {
     flex: 1 1 0;
   }
+
+  .inline-data-actions {
+    margin-right: 0;
+  }
 }
 
 @media (max-width: 640px) {
   .manage-actions, .table-action-group {
     width: 100%;
     justify-content: stretch;
+  }
+
+  .inline-data-actions {
+    width: 100%;
   }
 
   .manage-actions .ghost-btn, .table-action-group .ghost-btn {

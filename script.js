@@ -42,7 +42,7 @@ const defaultProviders = [
 let providers = cloneDefaultProviders();
 let forceShowOfficialPrices = false;
 let saveTimer = null;
-let importMode = 'replace';
+let importMode = 'merge';
 
 const cardsEl = document.querySelector('#cards');
 const rowsEl = document.querySelector('#priceRows');
@@ -53,7 +53,6 @@ const bestGapEl = document.querySelector('#bestGap');
 const restoreDefaultsBtn = document.querySelector('#restoreDefaultsBtn');
 const exportDataBtn = document.querySelector('#exportDataBtn');
 const importDataBtn = document.querySelector('#importDataBtn');
-const mergeImportDataBtn = document.querySelector('#mergeImportDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const formMessage = document.querySelector('#formMessage');
@@ -292,27 +291,32 @@ function renderTableHead(showOfficial) {
   const currentTarget = getTargetTokenMillion();
   tableHeadRow.innerHTML = `
     <th>中转站</th>
-    <th>充值金额</th>
-    <th>到账美元</th>
+    <th>充值</th>
+    <th>到账</th>
     <th>倍率</th>
     ${showOfficial ? '<th>官方输入价</th><th>官方输出价</th><th>官方缓存价</th>' : ''}
     <th>实际输入价</th>
     <th>实际输出价</th>
     <th>实际缓存价</th>
-    <th class="calculation-head">
-      <label for="rechargeInput">每多少人民币输出</label>
-      <div class="head-money-input">
-        <span>¥</span>
-        <input id="rechargeInput" type="number" min="1" step="1" value="${currentAmount}" inputmode="decimal" aria-label="按多少人民币计算输出" />
+    <th class="calculation-head output-condition-head">
+      <div class="head-inline-control">
+        <label for="rechargeInput">每</label>
+        <div class="head-money-input">
+          <span>¥</span>
+          <input id="rechargeInput" type="number" min="1" step="1" value="${currentAmount}" inputmode="decimal" aria-label="按多少人民币计算输出" />
+        </div>
+        <span>输出</span>
       </div>
     </th>
-    <th class="calculation-head">
-      <label for="targetTokenSelect">目标输出价格</label>
-      <select id="targetTokenSelect" aria-label="选择目标输出量">
-        <option value="1" ${currentTarget === 1 ? 'selected' : ''}>100万 tokens</option>
-        <option value="10" ${currentTarget === 10 ? 'selected' : ''}>1000万 tokens</option>
-        <option value="100" ${currentTarget === 100 ? 'selected' : ''}>1亿 tokens</option>
-      </select>
+    <th class="calculation-head target-condition-head">
+      <div class="head-inline-control">
+        <select id="targetTokenSelect" aria-label="选择目标输出量">
+          <option value="1" ${currentTarget === 1 ? 'selected' : ''}>100万 tokens</option>
+          <option value="10" ${currentTarget === 10 ? 'selected' : ''}>1000万 tokens</option>
+          <option value="100" ${currentTarget === 100 ? 'selected' : ''}>1亿 tokens</option>
+        </select>
+        <span>输出价格</span>
+      </div>
     </th>
     <th>操作</th>
   `;
@@ -604,10 +608,6 @@ tableHeadRow.addEventListener('change', event => {
 
 exportDataBtn.addEventListener('click', exportProviders);
 importDataBtn.addEventListener('click', () => {
-  importMode = 'replace';
-  importDataInput.click();
-});
-mergeImportDataBtn.addEventListener('click', () => {
   importMode = 'merge';
   importDataInput.click();
 });
