@@ -519,6 +519,24 @@ td.highlight { color: var(--success); font-size: 18px; }
   }
 }
 
+
+.details-title-row {
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.details-data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 24px;
+}
+
+.details-data-actions .ghost-btn {
+  min-height: 42px;
+}
+
 /* 详细表控制区：金额与目标输出量统一放到表格上方 */
 .table-tools-grid {
   display: grid;
@@ -600,6 +618,23 @@ td.highlight { color: var(--success); font-size: 18px; }
 
 .manage-actions .ghost-btn, .table-action-group .ghost-btn {
   min-height: 42px;
+}
+
+
+@media (max-width: 760px) {
+  .details-title-row {
+    align-items: stretch;
+  }
+
+  .details-data-actions {
+    width: 100%;
+    justify-content: stretch;
+    padding-top: 0;
+  }
+
+  .details-data-actions .ghost-btn {
+    flex: 1 1 0;
+  }
 }
 
 @media (max-width: 640px) {

@@ -89,10 +89,14 @@
     </section>
 
     <section class="panel" aria-labelledby="table-title">
-      <div class="section-title-row">
+      <div class="section-title-row details-title-row">
         <div>
           <p class="eyebrow">Details</p>
           <h2 id="table-title">详细换算表</h2>
+        </div>
+        <div class="details-data-actions" aria-label="数据导入导出">
+          <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
+          <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
         </div>
       </div>
       <div class="table-tools table-tools-grid">
@@ -113,8 +117,6 @@
         </div>
         <p id="officialVisibilityHint">当前所有渠道官方价一致，表格默认只展示实际价格。</p>
         <div class="table-action-group">
-          <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
-          <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
           <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
         </div>
       </div>
