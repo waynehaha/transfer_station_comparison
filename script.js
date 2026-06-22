@@ -309,9 +309,14 @@ function renderOfficialControls(showOfficial, sameOfficialPrice) {
   if (!officialToggleBtn || !officialVisibilityHint) return;
   officialToggleBtn.textContent = showOfficial ? '隐藏官方价' : '显示官方价';
   officialToggleBtn.setAttribute('aria-pressed', String(showOfficial));
-  officialVisibilityHint.textContent = sameOfficialPrice
+  const hintText = sameOfficialPrice
     ? '当前所有渠道官方价一致，表格默认只展示实际价格。需要修改官方价时，可点击“显示官方价”。'
     : '检测到不同渠道的官方价不一致，已自动展示官方价列。';
+  officialVisibilityHint.textContent = '?';
+  officialVisibilityHint.setAttribute('aria-label', hintText);
+  officialVisibilityHint.setAttribute('title', hintText);
+  officialVisibilityHint.dataset.tooltip = hintText;
+  officialVisibilityHint.classList.toggle('is-warning', !sameOfficialPrice);
 }
 
 function render() {
