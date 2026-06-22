@@ -52,6 +52,9 @@ const bestNameEl = document.querySelector('#bestName');
 const bestOutputEl = document.querySelector('#bestOutput');
 const bestGapEl = document.querySelector('#bestGap');
 const restoreDefaultsBtn = document.querySelector('#restoreDefaultsBtn');
+const exportDataBtn = document.querySelector('#exportDataBtn');
+const importDataBtn = document.querySelector('#importDataBtn');
+const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
@@ -128,17 +131,21 @@ function normalizeProvider(provider) {
   };
 }
 
+async function persistProviders() {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ providers }),
+  });
+  if (!response.ok) throw new Error('保存失败');
+}
+
 function saveProviders() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(providers));
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(async () => {
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providers }),
-      });
-      if (!response.ok) throw new Error('保存失败');
+      await persistProviders();
     } catch (error) {
       console.error('项目数据保存失败。', error);
       showMessage('项目文件保存失败，请确认是通过启动器打开。');
@@ -397,8 +404,71 @@ function updateProviderField(id, field, rawValue) {
   render();
 }
 
+function buildExportPayload() {
+  return {
+    exportedAt: new Date().toISOString(),
+    app: '中转站输出价格对比',
+    version: 1,
+    providers,
+  };
+}
+
+function downloadTextFile(filename, text, type = 'application/json') {
+  const blob = new Blob([text], { type: `${type};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportProviders() {
+  const dateText = new Date().toISOString().slice(0, 10).replaceAll('-', '');
+  const payload = buildExportPayload();
+  downloadTextFile(`${dateText}-中转站价格数据.json`, JSON.stringify(payload, null, 2));
+  showMessage('已导出数据文件。');
+}
+
+function parseImportedProviders(rawText) {
+  const data = JSON.parse(rawText);
+  const list = Array.isArray(data) ? data : data.providers;
+  if (!Array.isArray(list)) throw new Error('没有找到渠道数据');
+  const normalized = list.map(normalizeProvider).filter(Boolean);
+  if (!normalized.length) throw new Error('没有有效渠道');
+  return normalized;
+}
+
+async function importProvidersFromFile(file) {
+  const rawText = await file.text();
+  const importedProviders = parseImportedProviders(rawText);
+  providers = importedProviders;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(providers));
+  await persistProviders();
+  forceShowOfficialPrices = false;
+  render();
+  showMessage(`已导入 ${providers.length} 个渠道，并保存到项目文件。`);
+}
+
 rechargeInput.addEventListener('input', render);
 targetTokenSelect.addEventListener('change', render);
+
+exportDataBtn.addEventListener('click', exportProviders);
+importDataBtn.addEventListener('click', () => importDataInput.click());
+importDataInput.addEventListener('change', async () => {
+  const file = importDataInput.files?.[0];
+  if (!file) return;
+  try {
+    await importProvidersFromFile(file);
+  } catch (error) {
+    console.error('导入失败。', error);
+    showMessage('导入失败，请确认选择的是正确的数据 JSON 文件。');
+  } finally {
+    importDataInput.value = '';
+  }
+});
 
 restoreDefaultsBtn.addEventListener('click', () => {
   providers = cloneDefaultProviders();

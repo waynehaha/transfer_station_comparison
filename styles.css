@@ -67,11 +67,13 @@ button, input { font: inherit; }
 h1, h2, p { margin-top: 0; }
 
 h1 {
-  max-width: 760px;
+  width: 100%;
+  max-width: none;
   margin-bottom: 18px;
-  font-size: clamp(36px, 6vw, 68px);
+  font-size: clamp(48px, 6vw, 104px);
   line-height: 1.02;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.06em;
+  text-wrap: balance;
 }
 
 h2 {
@@ -586,5 +588,27 @@ td.highlight { color: var(--success); font-size: 18px; }
   .table-tools-grid p,
   .table-tools-grid .ghost-btn {
     grid-column: 1 / -1;
+  }
+}
+
+.manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.manage-actions .ghost-btn {
+  min-height: 42px;
+}
+
+@media (max-width: 640px) {
+  .manage-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .manage-actions .ghost-btn {
+    flex: 1 1 100%;
   }
 }

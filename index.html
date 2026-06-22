@@ -12,8 +12,8 @@
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-copy">
         <p class="eyebrow">AI 模型中转站价格计算器</p>
-        <h1 id="page-title">看清楚：每充 10 元，到底能换多少输出</h1>
-        <p class="subhead">按 OpenAI 官方价格和渠道倍率自动换算实际价格，直接比较哪个中转站更划算。</p>
+        <h1 id="page-title">中转站输出性价比排行</h1>
+        <p class="subhead">看每充 10 元能换多少输出，也能反算 100万、1000万、1亿输出分别要花多少钱。</p>
       </div>
     </section>
 
@@ -41,7 +41,11 @@
           <p class="eyebrow">Manage</p>
           <h2 id="editor-title">新增渠道</h2>
         </div>
-        <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
+        <div class="manage-actions">
+          <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
+          <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
+          <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
+        </div>
       </div>
       <form id="providerForm" class="provider-form">
         <label>
@@ -74,6 +78,7 @@
         </label>
         <button type="submit" class="primary-btn">添加到对比</button>
       </form>
+      <input id="importDataInput" type="file" accept="application/json,.json" hidden />
       <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
     </section>
 
