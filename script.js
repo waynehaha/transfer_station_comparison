@@ -13,6 +13,7 @@ const defaultProviders = [
     id: crypto.randomUUID(),
     pricingMode: 'usd',
     name: 'su8-max',
+    siteUrl: '',
     rechargeCny: 12,
     usdCredit: 100,
     officialInputPrice: OFFICIAL_PRICE.inputPrice,
@@ -24,6 +25,7 @@ const defaultProviders = [
     id: crypto.randomUUID(),
     pricingMode: 'usd',
     name: 'woyao-0.3 Pro',
+    siteUrl: '',
     rechargeCny: 100,
     usdCredit: 100,
     officialInputPrice: OFFICIAL_PRICE.inputPrice,
@@ -35,6 +37,7 @@ const defaultProviders = [
     id: crypto.randomUUID(),
     pricingMode: 'usd',
     name: 'TOK-Pro-0.4',
+    siteUrl: '',
     rechargeCny: 100,
     usdCredit: 100,
     officialInputPrice: OFFICIAL_PRICE.inputPrice,
@@ -116,6 +119,7 @@ function providerSignature(list) {
   return JSON.stringify(list.map(item => ({
     pricingMode: item.pricingMode || 'usd',
     name: item.name,
+    siteUrl: item.siteUrl || '',
     rechargeCny: Number(item.rechargeCny),
     usdCredit: Number(item.usdCredit || 0),
     cnyCredit: Number(item.cnyCredit || 0),
@@ -137,9 +141,23 @@ function providerMode(provider) {
   return provider?.pricingMode === 'cny' ? 'cny' : 'usd';
 }
 
+function normalizeProviderUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const withProtocol = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(withProtocol);
+    if (!['http:', 'https:'].includes(url.protocol)) return '';
+    return url.href;
+  } catch (error) {
+    return '';
+  }
+}
+
 function normalizeProvider(provider) {
   const pricingMode = providerMode(provider);
   const name = String(provider?.name || '').trim();
+  const siteUrl = normalizeProviderUrl(provider?.siteUrl ?? provider?.link ?? provider?.url ?? provider?.href);
   const rechargeCny = Number(provider?.rechargeCny);
 
   if (!name || rechargeCny <= 0) return null;
@@ -156,6 +174,7 @@ function normalizeProvider(provider) {
       id: provider.id || crypto.randomUUID(),
       pricingMode,
       name,
+      siteUrl,
       rechargeCny,
       cnyCredit,
       cnyInputPrice,
@@ -183,6 +202,7 @@ function normalizeProvider(provider) {
     id: provider.id || crypto.randomUUID(),
     pricingMode,
     name,
+    siteUrl,
     rechargeCny,
     usdCredit,
     officialInputPrice,
@@ -461,7 +481,7 @@ function rankedProviders(amount) {
 }
 
 function editableCell(provider, field, value, type = 'number', extra = '') {
-  const safeValue = type === 'text' ? escapeHtml(value) : value;
+  const safeValue = ['text', 'url'].includes(type) ? escapeHtml(value) : value;
   return `<input class="table-input" data-id="${provider.id}" data-field="${field}" type="${type}" value="${safeValue}" ${extra}>`;
 }
 
@@ -488,7 +508,12 @@ function providerNameDisplay(provider) {
   const cnyBadge = providerMode(provider) === 'cny'
     ? '<span class="mode-pill mode-cny provider-mode-badge">人民币直扣</span>'
     : '';
-  return `<div class="provider-name-stack">${tableText(provider.name, 'provider-name-value')}${cnyBadge}</div>`;
+  const safeName = escapeHtml(provider.name);
+  const safeUrl = normalizeProviderUrl(provider.siteUrl);
+  const nameContent = safeUrl
+    ? `<a class="provider-name-link provider-name-value" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${safeName}</a>`
+    : tableText(provider.name, 'provider-name-value');
+  return `<div class="provider-name-stack">${nameContent}${cnyBadge}</div>`;
 }
 
 function rawPriceValue(provider, kind) {
@@ -499,7 +524,7 @@ function rawPriceValue(provider, kind) {
 }
 
 function editInput(field, value, type = 'number', extra = '') {
-  const safeValue = type === 'text' ? escapeHtml(value ?? '') : value ?? '';
+  const safeValue = ['text', 'url'].includes(type) ? escapeHtml(value ?? '') : value ?? '';
   return `<input class="table-input edit-input" data-edit-field="${field}" type="${type}" value="${safeValue}" ${extra}>`;
 }
 
@@ -567,8 +592,8 @@ function updateEditDraftField(field, rawValue) {
     return;
   }
 
-  if (field === 'name') {
-    editDraft.name = String(rawValue);
+  if (field === 'name' || field === 'siteUrl') {
+    editDraft[field] = String(rawValue);
     return;
   }
 
@@ -638,7 +663,7 @@ function renderProviderRow(provider, showOfficial) {
 
   return `
     <tr class="${isEditing ? 'is-editing' : ''}">
-      <td>${isEditing ? `<div class="provider-name-stack">${editInput('name', viewProvider.name, 'text', 'aria-label="中转站名称"')}${pricingModeSelect(viewProvider)}</div>` : providerNameDisplay(viewProvider)}</td>
+      <td>${isEditing ? `<div class="provider-name-stack">${editInput('name', viewProvider.name, 'text', 'aria-label="中转站名称"')}${editInput('siteUrl', viewProvider.siteUrl || '', 'text', 'placeholder="跳转链接" aria-label="跳转链接"')}${pricingModeSelect(viewProvider)}</div>` : providerNameDisplay(viewProvider)}</td>
       ${detailCells}
       <td class="highlight result-output">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>
       <td class="highlight price-cost">${formatMoney(costForOutput(viewProvider, getTargetTokenMillion()))}</td>
@@ -781,6 +806,8 @@ function updateProviderField(id, field, rawValue) {
     const nextName = String(rawValue).trim();
     if (!nextName) return;
     provider.name = nextName;
+  } else if (field === 'siteUrl') {
+    provider.siteUrl = normalizeProviderUrl(rawValue);
   } else {
     const nextValue = Number(rawValue);
     if (!Number.isFinite(nextValue)) return;
@@ -835,6 +862,7 @@ function coreProviderData(provider) {
   return {
     pricingMode: providerMode(provider),
     name: String(provider.name || '').trim(),
+    siteUrl: normalizeProviderUrl(provider.siteUrl),
     rechargeCny: Number(provider.rechargeCny),
     usdCredit: Number(provider.usdCredit || 0),
     cnyCredit: Number(provider.cnyCredit || 0),
@@ -1036,6 +1064,7 @@ providerForm.addEventListener('submit', event => {
   const baseProvider = {
     pricingMode,
     name: formData.get('providerName'),
+    siteUrl: formData.get('providerLink'),
     rechargeCny: formData.get('providerCny'),
   };
 
