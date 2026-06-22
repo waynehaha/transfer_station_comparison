@@ -291,8 +291,8 @@ function renderTableHead(showOfficial) {
   const currentTarget = getTargetTokenMillion();
   tableHeadRow.innerHTML = `
     <th>中转站</th>
-    <th>充值</th>
-    <th>到账</th>
+    <th>充值 ¥</th>
+    <th>到账 $</th>
     <th>倍率</th>
     ${showOfficial ? '<th>官方输入价</th><th>官方输出价</th><th>官方缓存价</th>' : ''}
     <th>实际输入价</th>

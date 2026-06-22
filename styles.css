@@ -295,7 +295,7 @@ table {
   width: 100%;
   min-width: 1280px;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 th, td {
@@ -488,25 +488,41 @@ td.highlight { color: var(--success); font-size: 18px; }
   #priceRows td { width: auto; }
 
   #priceHeadRow th:first-child,
-  #priceRows td:first-child { min-width: 178px; }
+  #priceRows td:first-child { width: 15%; min-width: 168px; }
 
   #priceHeadRow th:nth-child(2),
   #priceRows td:nth-child(2),
   #priceHeadRow th:nth-child(3),
-  #priceRows td:nth-child(3),
+  #priceRows td:nth-child(3) { width: 8%; min-width: 88px; }
+
   #priceHeadRow th:nth-child(4),
-  #priceRows td:nth-child(4) { min-width: 112px; }
+  #priceRows td:nth-child(4) { width: 7%; min-width: 78px; }
+
+
+  #priceHeadRow th:nth-last-child(7),
+  #priceRows td:nth-last-child(7),
+  #priceHeadRow th:nth-last-child(6),
+  #priceRows td:nth-last-child(6),
+  #priceHeadRow th:nth-last-child(5),
+  #priceRows td:nth-last-child(5) { width: 7%; min-width: 88px; }
 
   #priceHeadRow th:nth-last-child(4),
-  #priceRows td:nth-last-child(4),
+  #priceRows td:nth-last-child(4) { width: 9%; min-width: 104px; }
+
   #priceHeadRow th:nth-last-child(3),
-  #priceRows td:nth-last-child(3) { min-width: 120px; }
+  #priceRows td:nth-last-child(3) { width: 11%; min-width: 150px; }
 
   #priceHeadRow th:nth-last-child(2),
-  #priceRows td:nth-last-child(2) { min-width: 180px; }
+  #priceRows td:nth-last-child(2) { width: 12%; min-width: 174px; }
 
   #priceHeadRow th:last-child,
-  #priceRows td:last-child { min-width: 86px; }
+  #priceRows td:last-child { width: 6%; min-width: 78px; }
+
+  #priceRows td:nth-child(2) .table-input,
+  #priceRows td:nth-child(3) .table-input,
+  #priceRows td:nth-child(4) .table-input {
+    padding: 0 8px;
+  }
 
   .delete-btn {
     min-width: 64px;
