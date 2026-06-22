@@ -513,7 +513,7 @@ td.highlight { color: var(--success); font-size: 18px; }
   #priceRows td:nth-last-child(3) { width: 11%; min-width: 150px; }
 
   #priceHeadRow th:nth-last-child(2),
-  #priceRows td:nth-last-child(2) { width: 12%; min-width: 174px; }
+  #priceRows td:nth-last-child(2) { width: 13%; min-width: 190px; }
 
   #priceHeadRow th:last-child,
   #priceRows td:last-child { width: 6%; min-width: 78px; }
@@ -540,6 +540,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 .details-title-row {
   align-items: flex-start;
   gap: 18px;
+  margin-bottom: 12px;
 }
 
 .details-data-actions {
@@ -626,7 +627,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .target-condition-head {
-  min-width: 210px;
+  min-width: 230px;
 }
 
 .head-inline-control {
@@ -687,7 +688,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .calculation-head select {
-  width: 116px;
+  width: 138px;
   padding: 0 9px;
 }
 
@@ -762,8 +763,8 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .table-action-group {
-  grid-column: 2;
   align-items: center;
+  padding-top: 18px;
 }
 
 .manage-actions .ghost-btn, .table-action-group .ghost-btn {
@@ -786,6 +787,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 @media (max-width: 760px) {
   .details-title-row {
     align-items: stretch;
+    margin-bottom: 14px;
   }
 
   .details-data-actions {
@@ -796,6 +798,10 @@ td.highlight { color: var(--success); font-size: 18px; }
 
   .details-data-actions .ghost-btn {
     flex: 1 1 0;
+  }
+
+  .table-action-group {
+    padding-top: 0;
   }
 
   .inline-data-actions {
