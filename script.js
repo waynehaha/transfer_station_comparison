@@ -9,6 +9,7 @@ const OFFICIAL_PRICE = {
 const defaultProviders = [
   {
     id: crypto.randomUUID(),
+    pricingMode: 'usd',
     name: 'su8-max',
     rechargeCny: 12,
     usdCredit: 100,
@@ -19,6 +20,7 @@ const defaultProviders = [
   },
   {
     id: crypto.randomUUID(),
+    pricingMode: 'usd',
     name: 'woyao-0.3 Pro',
     rechargeCny: 100,
     usdCredit: 100,
@@ -29,6 +31,7 @@ const defaultProviders = [
   },
   {
     id: crypto.randomUUID(),
+    pricingMode: 'usd',
     name: 'TOK-Pro-0.4',
     rechargeCny: 100,
     usdCredit: 100,
@@ -55,6 +58,12 @@ const exportDataBtn = document.querySelector('#exportDataBtn');
 const importDataBtn = document.querySelector('#importDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
+const providerPricingMode = document.querySelector('#providerPricingMode');
+const providerCreditLabel = document.querySelector('#providerCreditLabel');
+const providerInputPriceLabel = document.querySelector('#providerInputPriceLabel');
+const providerOutputPriceLabel = document.querySelector('#providerOutputPriceLabel');
+const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel');
+const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel');
 const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
 const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
@@ -85,13 +94,18 @@ function readLegacyBrowserProviders() {
 
 function providerSignature(list) {
   return JSON.stringify(list.map(item => ({
+    pricingMode: item.pricingMode || 'usd',
     name: item.name,
     rechargeCny: Number(item.rechargeCny),
-    usdCredit: Number(item.usdCredit),
-    officialInputPrice: Number(item.officialInputPrice),
-    officialOutputPrice: Number(item.officialOutputPrice),
-    officialCachePrice: Number(item.officialCachePrice),
-    multiplier: Number(item.multiplier),
+    usdCredit: Number(item.usdCredit || 0),
+    cnyCredit: Number(item.cnyCredit || 0),
+    officialInputPrice: Number(item.officialInputPrice || 0),
+    officialOutputPrice: Number(item.officialOutputPrice || 0),
+    officialCachePrice: Number(item.officialCachePrice || 0),
+    cnyInputPrice: Number(item.cnyInputPrice || 0),
+    cnyOutputPrice: Number(item.cnyOutputPrice || 0),
+    cnyCachePrice: Number(item.cnyCachePrice || 0),
+    multiplier: Number(item.multiplier || 0),
   })).sort((a, b) => a.name.localeCompare(b.name, 'zh-CN')));
 }
 
@@ -99,9 +113,38 @@ function cloneDefaultProviders() {
   return defaultProviders.map(provider => ({ ...provider, id: crypto.randomUUID() }));
 }
 
+function providerMode(provider) {
+  return provider?.pricingMode === 'cny' ? 'cny' : 'usd';
+}
+
 function normalizeProvider(provider) {
+  const pricingMode = providerMode(provider);
   const name = String(provider?.name || '').trim();
   const rechargeCny = Number(provider?.rechargeCny);
+
+  if (!name || rechargeCny <= 0) return null;
+
+  if (pricingMode === 'cny') {
+    const cnyCredit = Number(provider?.cnyCredit ?? provider?.usdCredit ?? provider?.creditAmount ?? rechargeCny);
+    const cnyInputPrice = Number(provider?.cnyInputPrice ?? provider?.officialInputPrice ?? provider?.inputPrice ?? 0);
+    const cnyOutputPrice = Number(provider?.cnyOutputPrice ?? provider?.officialOutputPrice ?? provider?.outputPrice);
+    const cnyCachePrice = Number(provider?.cnyCachePrice ?? provider?.officialCachePrice ?? provider?.cachePrice ?? 0);
+
+    if (cnyCredit <= 0 || cnyInputPrice < 0 || cnyOutputPrice <= 0 || cnyCachePrice < 0) return null;
+
+    return {
+      id: provider.id || crypto.randomUUID(),
+      pricingMode,
+      name,
+      rechargeCny,
+      cnyCredit,
+      cnyInputPrice,
+      cnyOutputPrice,
+      cnyCachePrice,
+      multiplier: 1,
+    };
+  }
+
   const usdCredit = Number(provider?.usdCredit);
   const officialInputPrice = Number(provider?.officialInputPrice ?? provider?.inputPrice ?? OFFICIAL_PRICE.inputPrice);
   const officialOutputPrice = Number(provider?.officialOutputPrice ?? provider?.outputPrice ?? OFFICIAL_PRICE.outputPrice);
@@ -109,8 +152,6 @@ function normalizeProvider(provider) {
   const multiplier = Number(provider?.multiplier ?? 1);
 
   if (
-    !name ||
-    rechargeCny <= 0 ||
     usdCredit <= 0 ||
     officialInputPrice < 0 ||
     officialOutputPrice <= 0 ||
@@ -120,6 +161,7 @@ function normalizeProvider(provider) {
 
   return {
     id: provider.id || crypto.randomUUID(),
+    pricingMode,
     name,
     rechargeCny,
     usdCredit,
@@ -179,22 +221,48 @@ async function initializeData() {
 }
 
 
+function creditAmount(provider) {
+  return providerMode(provider) === 'cny' ? provider.cnyCredit : provider.usdCredit;
+}
+
+function creditCurrency(provider) {
+  return providerMode(provider) === 'cny' ? '¥' : '$';
+}
+
+function originalInputPrice(provider) {
+  return providerMode(provider) === 'cny' ? provider.cnyInputPrice : provider.officialInputPrice * provider.multiplier;
+}
+
+function originalOutputPrice(provider) {
+  return providerMode(provider) === 'cny' ? provider.cnyOutputPrice : provider.officialOutputPrice * provider.multiplier;
+}
+
+function originalCachePrice(provider) {
+  return providerMode(provider) === 'cny' ? provider.cnyCachePrice : provider.officialCachePrice * provider.multiplier;
+}
+
+function cnyPerCreditUnit(provider) {
+  const credit = creditAmount(provider);
+  if (credit <= 0) return 0;
+  return provider.rechargeCny / credit;
+}
+
 function actualInputPrice(provider) {
-  return provider.officialInputPrice * provider.multiplier;
+  return originalInputPrice(provider) * cnyPerCreditUnit(provider);
 }
 
 function actualOutputPrice(provider) {
-  return provider.officialOutputPrice * provider.multiplier;
+  return originalOutputPrice(provider) * cnyPerCreditUnit(provider);
 }
 
 function actualCachePrice(provider) {
-  return provider.officialCachePrice * provider.multiplier;
+  return originalCachePrice(provider) * cnyPerCreditUnit(provider);
 }
 
 function outputFor(provider, cny) {
   const outputPrice = actualOutputPrice(provider);
   if (outputPrice <= 0) return 0;
-  return cny * (provider.usdCredit / provider.rechargeCny) / outputPrice;
+  return cny / outputPrice;
 }
 
 function formatMillion(value) {
@@ -207,6 +275,26 @@ function formatPrice(value) {
 
 function formatMoney(value, currency = '¥') {
   return `${currency}${new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(value)}`;
+}
+
+
+function modeLabel(provider) {
+  return providerMode(provider) === 'cny' ? '人民币直扣' : '美元额度';
+}
+
+function formatUnitPrice(value, currency = '¥') {
+  return `${currency}${formatPrice(value)}/M`;
+}
+
+function creditField(provider) {
+  return providerMode(provider) === 'cny' ? 'cnyCredit' : 'usdCredit';
+}
+
+function originalPriceField(provider, kind) {
+  if (providerMode(provider) === 'cny') {
+    return { input: 'cnyInputPrice', output: 'cnyOutputPrice', cache: 'cnyCachePrice' }[kind];
+  }
+  return { input: 'officialInputPrice', output: 'officialOutputPrice', cache: 'officialCachePrice' }[kind];
 }
 
 function escapeHtml(value) {
@@ -238,9 +326,7 @@ function getTargetTokenMillion() {
 }
 
 function costForOutput(provider, targetMillion) {
-  const usdPerCny = provider.usdCredit / provider.rechargeCny;
-  if (usdPerCny <= 0) return 0;
-  return targetMillion * actualOutputPrice(provider) / usdPerCny;
+  return targetMillion * actualOutputPrice(provider);
 }
 
 function targetTokenLabel() {
@@ -264,19 +350,21 @@ function isOfficialPriceSameForAll() {
 }
 
 function shouldShowOfficialColumns() {
-  return forceShowOfficialPrices || !isOfficialPriceSameForAll();
+  return forceShowOfficialPrices;
 }
 
 function rankedProviders(amount) {
   return providers
     .map(provider => ({
       ...provider,
+      originalInputPrice: originalInputPrice(provider),
+      originalOutputPrice: originalOutputPrice(provider),
+      originalCachePrice: originalCachePrice(provider),
       actualInputPrice: actualInputPrice(provider),
       actualOutputPrice: actualOutputPrice(provider),
       actualCachePrice: actualCachePrice(provider),
       outputForCurrent: outputFor(provider, amount),
       targetCostCny: costForOutput(provider, getTargetTokenMillion()),
-      usdPerCny: provider.usdCredit / provider.rechargeCny,
     }))
     .sort((a, b) => b.outputForCurrent - a.outputForCurrent || a.name.localeCompare(b.name, 'zh-CN'));
 }
@@ -286,19 +374,24 @@ function editableCell(provider, field, value, type = 'number', extra = '') {
   return `<input class="table-input" data-id="${provider.id}" data-field="${field}" type="${type}" value="${safeValue}" ${extra}>`;
 }
 
+function prefixedEditableCell(provider, field, value, prefix, extra = '') {
+  return `<div class="prefixed-input"><span>${prefix}</span>${editableCell(provider, field, value, 'number', extra)}</div>`;
+}
+
 function renderTableHead(showOfficial) {
   const currentAmount = getRechargeAmount();
   const currentTarget = getTargetTokenMillion();
   tableHeadRow.dataset.officialVisible = String(showOfficial);
   tableHeadRow.innerHTML = `
     <th>中转站</th>
+    <th>计价方式</th>
     <th>充值 ¥</th>
-    <th>到账 $</th>
+    <th>到账</th>
     <th>渠道倍率</th>
-    ${showOfficial ? '<th class="official-price-head">官方输入</th><th class="official-price-head">官方输出</th><th class="official-price-head">官方缓存</th>' : ''}
-    <th>实际输入</th>
-    <th>实际输出</th>
-    <th>实际缓存</th>
+    ${showOfficial ? '<th class="official-price-head">原始输入</th><th class="official-price-head">原始输出</th><th class="official-price-head">原始缓存</th>' : ''}
+    <th>折算输入</th>
+    <th>折算输出</th>
+    <th>折算缓存</th>
     <th class="calculation-head output-condition-head">
       <div class="head-inline-control">
         <label for="rechargeInput">每</label>
@@ -326,7 +419,7 @@ function renderTableHead(showOfficial) {
 function renderEmptyState() {
   const showOfficial = shouldShowOfficialColumns();
   renderTableHead(showOfficial);
-  const columnCount = showOfficial ? 13 : 10;
+  const columnCount = showOfficial ? 14 : 11;
   bestNameEl.textContent = '暂无渠道';
   bestOutputEl.textContent = '-';
   bestGapEl.textContent = '-';
@@ -336,11 +429,11 @@ function renderEmptyState() {
 
 function renderOfficialControls(showOfficial, sameOfficialPrice) {
   if (!officialToggleBtn || !officialVisibilityHint) return;
-  officialToggleBtn.textContent = showOfficial ? '隐藏官方价' : '显示官方价';
+  officialToggleBtn.textContent = showOfficial ? '隐藏原始价' : '显示原始价';
   officialToggleBtn.setAttribute('aria-pressed', String(showOfficial));
   const hintText = sameOfficialPrice
-    ? '当前所有渠道官方价一致，表格默认只展示实际价格。需要修改官方价时，可点击“显示官方价”。'
-    : '检测到不同渠道的官方价不一致，已自动展示官方价列。';
+    ? '表格默认展示统一折算后的人民币成本。需要查看或修改原始单价时，可点击“显示原始价”。'
+    : '不同渠道可能使用美元额度或人民币直扣，表格会统一折算成人民币成本做横向比较。';
   officialVisibilityHint.textContent = '?';
   officialVisibilityHint.setAttribute('aria-label', hintText);
   officialVisibilityHint.setAttribute('title', hintText);
@@ -379,12 +472,12 @@ function render(options = {}) {
         <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${width}%"></div></div>
         <div class="card-foot">
           <span>每 ${formatMoney(amount)}：${formatMillion(provider.outputForCurrent)}M</span>
-          <span>倍率：${formatPrice(provider.multiplier)}</span>
+          <span>${modeLabel(provider)}</span>
         </div>
         <div class="price-chips" aria-label="实际价格明细">
-          <span>实际输入 $${formatPrice(provider.actualInputPrice)}/M</span>
-          <span>实际输出 $${formatPrice(provider.actualOutputPrice)}/M</span>
-          <span>实际缓存 $${formatPrice(provider.actualCachePrice)}/M</span>
+          <span>折算输入 ${formatUnitPrice(provider.actualInputPrice, '¥')}</span>
+          <span>折算输出 ${formatUnitPrice(provider.actualOutputPrice, '¥')}</span>
+          <span>折算缓存 ${formatUnitPrice(provider.actualCachePrice, '¥')}</span>
         </div>
       </article>`;
   }).join('');
@@ -392,25 +485,29 @@ function render(options = {}) {
   if (!options.preserveTableHead) {
     renderTableHead(showOfficial);
   }
-  rowsEl.innerHTML = ranked.map(provider => `
+  rowsEl.innerHTML = ranked.map(provider => {
+    const isCnyMode = providerMode(provider) === 'cny';
+    const originalCurrency = creditCurrency(provider);
+    return `
     <tr>
       <td>${editableCell(provider, 'name', provider.name, 'text', 'aria-label="中转站名称"')}</td>
+      <td><span class="mode-pill ${isCnyMode ? 'mode-cny' : 'mode-usd'}">${modeLabel(provider)}</span></td>
       <td>${editableCell(provider, 'rechargeCny', provider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"')}</td>
-      <td>${editableCell(provider, 'usdCredit', provider.usdCredit, 'number', 'min="0.01" step="0.01" aria-label="到账美元"')}</td>
-      <td>${editableCell(provider, 'multiplier', provider.multiplier, 'number', 'min="0" step="0.0001" aria-label="倍率"')}</td>
+      <td>${prefixedEditableCell(provider, creditField(provider), creditAmount(provider), creditCurrency(provider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`)}</td>
+      <td>${isCnyMode ? '<span class="muted muted-dash">-</span>' : editableCell(provider, 'multiplier', provider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"')}</td>
       ${showOfficial ? `
-        <td class="official-price-cell">${editableCell(provider, 'officialInputPrice', provider.officialInputPrice, 'number', 'min="0" step="0.0001" aria-label="官方输入价"')}</td>
-        <td class="official-price-cell">${editableCell(provider, 'officialOutputPrice', provider.officialOutputPrice, 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"')}</td>
-        <td class="official-price-cell">${editableCell(provider, 'officialCachePrice', provider.officialCachePrice, 'number', 'min="0" step="0.0001" aria-label="官方缓存价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, originalPriceField(provider, 'input'), provider.originalInputPrice, 'number', 'min="0" step="0.0001" aria-label="原始输入价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, originalPriceField(provider, 'output'), provider.originalOutputPrice, 'number', 'min="0.0001" step="0.0001" aria-label="原始输出价"')}</td>
+        <td class="official-price-cell">${editableCell(provider, originalPriceField(provider, 'cache'), provider.originalCachePrice, 'number', 'min="0" step="0.0001" aria-label="原始缓存价"')}</td>
       ` : ''}
-      <td class="muted actual-price">$${formatPrice(provider.actualInputPrice)}/M</td>
-      <td class="muted actual-price">$${formatPrice(provider.actualOutputPrice)}/M</td>
-      <td class="muted actual-price">$${formatPrice(provider.actualCachePrice)}/M</td>
+      <td class="muted actual-price">${formatUnitPrice(provider.actualInputPrice, '¥')}</td>
+      <td class="muted actual-price">${formatUnitPrice(provider.actualOutputPrice, '¥')}</td>
+      <td class="muted actual-price">${formatUnitPrice(provider.actualCachePrice, '¥')}</td>
       <td class="highlight">${formatMillion(provider.outputForCurrent)}M</td>
       <td class="highlight price-cost">${formatMoney(provider.targetCostCny)}</td>
       <td><button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(provider.name)}">删除</button></td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function showMessage(message) {
@@ -432,7 +529,7 @@ function updateProviderField(id, field, rawValue) {
   } else {
     const nextValue = Number(rawValue);
     if (!Number.isFinite(nextValue)) return;
-    const mustBePositive = ['rechargeCny', 'usdCredit', 'officialOutputPrice'];
+    const mustBePositive = ['rechargeCny', 'usdCredit', 'cnyCredit', 'officialOutputPrice', 'cnyOutputPrice'];
     if (mustBePositive.includes(field) && nextValue <= 0) return;
     if (!mustBePositive.includes(field) && nextValue < 0) return;
     provider[field] = nextValue;
@@ -481,13 +578,18 @@ function parseImportedProviders(rawText) {
 
 function coreProviderData(provider) {
   return {
+    pricingMode: providerMode(provider),
     name: String(provider.name || '').trim(),
     rechargeCny: Number(provider.rechargeCny),
-    usdCredit: Number(provider.usdCredit),
-    officialInputPrice: Number(provider.officialInputPrice),
-    officialOutputPrice: Number(provider.officialOutputPrice),
-    officialCachePrice: Number(provider.officialCachePrice),
-    multiplier: Number(provider.multiplier),
+    usdCredit: Number(provider.usdCredit || 0),
+    cnyCredit: Number(provider.cnyCredit || 0),
+    officialInputPrice: Number(provider.officialInputPrice || 0),
+    officialOutputPrice: Number(provider.officialOutputPrice || 0),
+    officialCachePrice: Number(provider.officialCachePrice || 0),
+    cnyInputPrice: Number(provider.cnyInputPrice || 0),
+    cnyOutputPrice: Number(provider.cnyOutputPrice || 0),
+    cnyCachePrice: Number(provider.cnyCachePrice || 0),
+    multiplier: Number(provider.multiplier || 0),
   };
 }
 
@@ -638,21 +740,41 @@ officialToggleBtn.addEventListener('click', () => {
   render();
 });
 
+providerPricingMode.addEventListener('change', () => {
+  applyPricingModeToForm(providerPricingMode.value);
+});
+
 providerForm.addEventListener('submit', event => {
   event.preventDefault();
   const formData = new FormData(providerForm);
-  const nextProvider = normalizeProvider({
+  const pricingMode = formData.get('providerPricingMode') === 'cny' ? 'cny' : 'usd';
+  const baseProvider = {
+    pricingMode,
     name: formData.get('providerName'),
     rechargeCny: formData.get('providerCny'),
-    usdCredit: formData.get('providerUsd'),
-    officialInputPrice: formData.get('providerOfficialInput'),
-    officialOutputPrice: formData.get('providerOfficialOutput'),
-    officialCachePrice: formData.get('providerOfficialCache'),
-    multiplier: formData.get('providerMultiplier'),
-  });
+  };
+
+  const nextProvider = normalizeProvider(pricingMode === 'cny'
+    ? {
+      ...baseProvider,
+      cnyCredit: formData.get('providerUsd'),
+      cnyInputPrice: formData.get('providerOfficialInput'),
+      cnyOutputPrice: formData.get('providerOfficialOutput'),
+      cnyCachePrice: formData.get('providerOfficialCache'),
+    }
+    : {
+      ...baseProvider,
+      usdCredit: formData.get('providerUsd'),
+      officialInputPrice: formData.get('providerOfficialInput'),
+      officialOutputPrice: formData.get('providerOfficialOutput'),
+      officialCachePrice: formData.get('providerOfficialCache'),
+      multiplier: formData.get('providerMultiplier'),
+    });
 
   if (!nextProvider) {
-    showMessage('请把渠道名称、充值金额、美元额度、官方价格和倍率都填成有效数字。');
+    showMessage(pricingMode === 'cny'
+      ? '请把渠道名称、充值金额、到账人民币和人民币单价填成有效数字。'
+      : '请把渠道名称、充值金额、美元额度、官方价格和倍率都填成有效数字。');
     return;
   }
 
@@ -688,11 +810,28 @@ rowsEl.addEventListener('keydown', event => {
   input.blur();
 });
 
+function applyPricingModeToForm(mode) {
+  const isCnyMode = mode === 'cny';
+  providerCreditLabel.textContent = isCnyMode ? '到账人民币余额' : '到账美元额度';
+  providerInputPriceLabel.textContent = isCnyMode ? '输入价（人民币/M）' : '官方输入价（美元/M）';
+  providerOutputPriceLabel.textContent = isCnyMode ? '输出价（人民币/M）' : '官方输出价（美元/M）';
+  providerCachePriceLabel.textContent = isCnyMode ? '缓存价（人民币/M，可填 0）' : '官方缓存价（美元/M）';
+  providerMultiplierLabel.classList.toggle('is-hidden', isCnyMode);
+  document.querySelector('#providerUsd').placeholder = isCnyMode ? '例如：100' : '例如：100';
+  document.querySelector('#providerOfficialInput').placeholder = isCnyMode ? '例如：3' : '默认：5';
+  document.querySelector('#providerOfficialOutput').placeholder = isCnyMode ? '例如：24' : '默认：30';
+  document.querySelector('#providerOfficialCache').placeholder = isCnyMode ? '没有就填 0' : '默认：0.5';
+  document.querySelector('#providerMultiplier').required = !isCnyMode;
+  if (isCnyMode) document.querySelector('#providerMultiplier').value = 1;
+}
+
 function setFormDefaults() {
+  providerPricingMode.value = 'usd';
   document.querySelector('#providerOfficialInput').value = OFFICIAL_PRICE.inputPrice;
   document.querySelector('#providerOfficialOutput').value = OFFICIAL_PRICE.outputPrice;
   document.querySelector('#providerOfficialCache').value = OFFICIAL_PRICE.cachePrice;
   document.querySelector('#providerMultiplier').value = 1;
+  applyPricingModeToForm('usd');
 }
 
 initializeData();

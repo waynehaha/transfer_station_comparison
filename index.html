@@ -49,26 +49,33 @@
           <input id="providerName" name="providerName" type="text" placeholder="例如：某某 Pro" required />
         </label>
         <label>
+          <span>计价方式</span>
+          <select id="providerPricingMode" name="providerPricingMode" class="form-select">
+            <option value="usd" selected>美元额度</option>
+            <option value="cny">人民币直扣</option>
+          </select>
+        </label>
+        <label>
           <span>充值金额（人民币）</span>
           <input id="providerCny" name="providerCny" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
         </label>
         <label>
-          <span>对应美元额度</span>
+          <span id="providerCreditLabel">到账美元额度</span>
           <input id="providerUsd" name="providerUsd" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
         </label>
         <label>
-          <span>官方输入价（美元/M）</span>
+          <span id="providerInputPriceLabel">官方输入价（美元/M）</span>
           <input id="providerOfficialInput" name="providerOfficialInput" type="number" min="0" step="0.0001" placeholder="默认：5" required />
         </label>
         <label>
-          <span>官方输出价（美元/M）</span>
+          <span id="providerOutputPriceLabel">官方输出价（美元/M）</span>
           <input id="providerOfficialOutput" name="providerOfficialOutput" type="number" min="0.0001" step="0.0001" placeholder="默认：30" required />
         </label>
         <label>
-          <span>官方缓存价（美元/M）</span>
+          <span id="providerCachePriceLabel">官方缓存价（美元/M）</span>
           <input id="providerOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" placeholder="默认：0.5" required />
         </label>
-        <label>
+        <label id="providerMultiplierLabel">
           <span>渠道倍率</span>
           <input id="providerMultiplier" name="providerMultiplier" type="number" min="0" step="0.0001" placeholder="例如：0.3" required />
         </label>
@@ -99,8 +106,8 @@
             <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
             <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
           </div>
-          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="当前所有渠道官方价一致，表格默认只展示实际价格。" data-tooltip="当前所有渠道官方价一致，表格默认只展示实际价格。">?</span>
-          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
+          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="表格默认展示统一折算后的人民币成本。需要查看或修改原始单价时，可点击“显示原始价”。" data-tooltip="表格默认展示统一折算后的人民币成本。需要查看或修改原始单价时，可点击“显示原始价”。">?</span>
+          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示原始价</button>
         </div>
       </div>
       <div class="table-wrap">
