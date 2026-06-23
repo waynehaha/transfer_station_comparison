@@ -1583,3 +1583,25 @@ body.is-readonly #priceHeadRow th:last-child,
 body.is-readonly #priceRows td:last-child {
   width: 16%;
 }
+
+/* 最终行高亮：鼠标移到某条价格记录时，整行轻微变亮，方便快速定位 */
+#priceRows tr > td {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+#priceRows tr:not(.is-editing):hover {
+  box-shadow: inset 3px 0 0 rgba(249, 115, 22, 0.68);
+}
+
+#priceRows tr:not(.is-editing):hover > td,
+.table-wrap.has-horizontal-overflow #priceRows tr:not(.is-editing):hover > td,
+.table-wrap.is-horizontal-scrolled #priceRows tr:not(.is-editing):hover > td,
+.table-wrap.has-fixed-column-overlap #priceRows tr:not(.is-editing):hover > td,
+body.is-readonly #priceRows tr:not(.is-editing):hover > td {
+  background: rgba(255, 247, 237, 0.06);
+  background-clip: padding-box;
+}
+
+#priceRows tr:not(.is-editing):hover > td:first-child {
+  color: #fffaf0;
+}
