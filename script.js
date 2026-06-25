@@ -526,6 +526,32 @@ function getTargetTokenSelect() {
   return document.querySelector('#targetTokenSelect');
 }
 
+function measureControlTextWidth(text, element) {
+  if (!element) return 0;
+  const canvas = measureControlTextWidth.canvas || (measureControlTextWidth.canvas = document.createElement('canvas'));
+  const context = canvas.getContext('2d');
+  const style = window.getComputedStyle(element);
+  context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+  return context.measureText(text).width;
+}
+
+function updateHeadControlWidths() {
+  const rechargeInput = getRechargeInput();
+  const moneyInput = rechargeInput?.closest('.head-money-input');
+  if (rechargeInput && moneyInput) {
+    const valueText = rechargeInput.value || rechargeInput.placeholder || '10';
+    const valueWidth = measureControlTextWidth(valueText, rechargeInput);
+    moneyInput.style.setProperty('--head-money-width', `${Math.ceil(valueWidth + 48)}px`);
+  }
+
+  const tokenSelect = getTargetTokenSelect();
+  if (tokenSelect) {
+    const optionText = tokenSelect.selectedOptions?.[0]?.textContent || '1亿 tokens';
+    const optionWidth = measureControlTextWidth(optionText, tokenSelect);
+    tokenSelect.style.setProperty('--target-select-width', `${Math.ceil(optionWidth + 42)}px`);
+  }
+}
+
 function getRechargeAmount() {
   const input = getRechargeInput();
   const raw = Number(input?.value);
@@ -842,6 +868,7 @@ function renderTableHead(showOfficial) {
     </th>
     ${isReadOnlyMode ? '' : '<th>操作</th>'}
   `;
+  updateHeadControlWidths();
 }
 
 function renderEmptyState() {
@@ -899,6 +926,7 @@ function render(options = {}) {
     renderTableHead(showOfficial);
   }
   rowsEl.innerHTML = ranked.map(provider => renderProviderRow(provider, showOfficial)).join('');
+  updateHeadControlWidths();
   scheduleTableOverflowCheck();
 }
 
@@ -1112,11 +1140,13 @@ async function importProvidersFromFile(file, mode = 'replace') {
 
 tableHeadRow.addEventListener('input', event => {
   if (event.target?.id !== 'rechargeInput') return;
+  updateHeadControlWidths();
   render({ preserveTableHead: true });
 });
 
 tableHeadRow.addEventListener('change', event => {
   if (event.target?.id !== 'targetTokenSelect') return;
+  updateHeadControlWidths();
   render({ preserveTableHead: true });
 });
 

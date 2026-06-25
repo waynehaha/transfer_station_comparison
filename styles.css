@@ -724,16 +724,16 @@ body.has-open-modal {
 
 
 .calculation-head {
-  min-width: 180px;
+  min-width: max-content;
   vertical-align: middle;
 }
 
 .output-condition-head {
-  min-width: 176px;
+  min-width: max-content;
 }
 
 .target-condition-head {
-  min-width: 230px;
+  min-width: max-content;
 }
 
 .head-inline-control {
@@ -757,12 +757,12 @@ body.has-open-modal {
 
 .head-money-input,
 .calculation-head select {
-  min-height: 38px;
+  min-height: 34px;
   border: 1px solid rgba(249, 115, 22, 0.42);
-  border-radius: 13px;
+  border-radius: 12px;
   background: rgba(0, 0, 0, 0.22);
   color: var(--text);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0;
   outline: 0;
@@ -772,30 +772,37 @@ body.has-open-modal {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  width: 82px;
-  padding: 0 9px;
+  width: var(--head-money-width, 64px);
+  padding: 0 8px;
 }
 
 .head-money-input span {
   color: var(--primary);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 950;
 }
 
 .head-money-input input {
   width: 100%;
-  min-width: 0;
+  min-width: 2.4ch;
   border: 0;
   outline: 0;
   background: transparent;
   color: var(--text);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 950;
+  appearance: textfield;
+}
+
+.head-money-input input::-webkit-outer-spin-button,
+.head-money-input input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
 }
 
 .calculation-head select {
-  width: 138px;
-  padding: 0 9px;
+  width: var(--target-select-width, 112px);
+  padding: 0 28px 0 9px;
 }
 
 .hint-icon {
@@ -1142,14 +1149,14 @@ tr.is-editing {
 }
 
 .head-stacked-control select {
-  width: 138px;
-  min-height: 38px;
+  width: var(--target-select-width, 112px);
+  min-height: 34px;
   border: 1px solid rgba(249, 115, 22, 0.42);
-  border-radius: 13px;
-  padding: 0 9px;
+  border-radius: 12px;
+  padding: 0 28px 0 9px;
   background: rgba(0, 0, 0, 0.22);
   color: var(--text);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0;
   outline: 0;
@@ -1179,7 +1186,7 @@ tr.is-editing {
 
 #priceHeadRow .output-condition-head .head-inline-control > label,
 #priceHeadRow .output-condition-head .head-inline-control > span {
-  min-height: 38px;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
 }
@@ -1208,10 +1215,10 @@ tr.is-editing {
 #priceHeadRow th:nth-last-child(3),
 #priceRows td:nth-last-child(3) {
   position: sticky;
-  right: 350px;
+  right: 310px;
   z-index: 4;
-  width: 150px;
-  min-width: 150px;
+  width: 132px;
+  min-width: 132px;
   background: rgba(36, 31, 31, 0.98);
 }
 
@@ -1220,8 +1227,8 @@ tr.is-editing {
   position: sticky;
   right: 160px;
   z-index: 5;
-  width: 190px;
-  min-width: 190px;
+  width: 150px;
+  min-width: 150px;
   background: rgba(36, 31, 31, 0.98);
 }
 
@@ -1254,16 +1261,16 @@ tr.is-editing {
 @media (max-width: 760px) {
   #priceHeadRow th:nth-last-child(3),
   #priceRows td:nth-last-child(3) {
-    right: 300px;
-    width: 132px;
-    min-width: 132px;
+    right: 290px;
+    width: 126px;
+    min-width: 126px;
   }
 
   #priceHeadRow th:nth-last-child(2),
   #priceRows td:nth-last-child(2) {
     right: 142px;
-    width: 158px;
-    min-width: 158px;
+    width: 148px;
+    min-width: 148px;
   }
 
   #priceHeadRow th:last-child,
@@ -1474,10 +1481,10 @@ body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child
 body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
 body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2) {
   position: sticky;
-  right: 190px;
+  right: 150px;
   z-index: 40;
-  width: 150px;
-  min-width: 150px;
+  width: 132px;
+  min-width: 132px;
 }
 
 body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
@@ -1489,8 +1496,8 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:last-child {
   position: sticky;
   right: 0;
   z-index: 41;
-  width: 190px;
-  min-width: 190px;
+  width: 150px;
+  min-width: 150px;
 }
 
 body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:nth-last-child(3),
@@ -1539,9 +1546,9 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-chi
   body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:nth-last-child(2),
   body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:nth-last-child(2),
   body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-child(2) {
-    right: 158px;
-    width: 132px;
-    min-width: 132px;
+    right: 148px;
+    width: 126px;
+    min-width: 126px;
   }
 
   body.is-readonly .table-wrap.has-horizontal-overflow #priceHeadRow th:last-child,
@@ -1550,8 +1557,8 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-chi
   body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows td:last-child,
   body.is-readonly .table-wrap.has-fixed-column-overlap #priceHeadRow th:last-child,
   body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:last-child {
-    width: 158px;
-    min-width: 158px;
+    width: 148px;
+    min-width: 148px;
   }
 }
 
