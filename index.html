@@ -79,7 +79,7 @@
             <input id="providerOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" placeholder="默认：0.5" required />
           </label>
         </div>
-        <label id="providerMultiplierLabel">
+        <label id="providerMultiplierLabel" class="multiplier-label">
           <span>渠道倍率</span>
           <input id="providerMultiplier" name="providerMultiplier" type="number" min="0" step="0.0001" placeholder="例如：0.3" required />
         </label>
@@ -129,6 +129,81 @@
       <p class="formula-box">目标输出价格 = 目标输出量 × 统一人民币输出价；统一美元按 ¥6.8 ≈ $1 估算</p>
     </section>
   </main>
+  <div id="editProviderModal" class="modal-shell" aria-hidden="true">
+    <div class="modal-backdrop" data-close-edit-modal></div>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editProviderTitle">
+      <div class="section-title-row modal-title-row">
+        <div>
+          <p class="eyebrow">Edit</p>
+          <h2 id="editProviderTitle">编辑渠道</h2>
+        </div>
+        <button id="closeEditModalBtn" type="button" class="ghost-btn" aria-label="关闭编辑弹框">关闭</button>
+      </div>
+      <form id="editProviderForm" class="provider-form edit-provider-form">
+        <label>
+          <span>渠道名称</span>
+          <input id="editProviderName" name="providerName" type="text" required />
+        </label>
+        <label>
+          <span>跳转链接</span>
+          <input id="editProviderLink" name="providerLink" type="text" placeholder="例如：https://example.com" />
+        </label>
+        <label>
+          <span>计价方式</span>
+          <select id="editProviderPricingMode" name="providerPricingMode" class="form-select">
+            <option value="usd">美元额度</option>
+            <option value="cny">人民币直扣</option>
+          </select>
+        </label>
+        <label>
+          <span>充值金额（人民币）</span>
+          <input id="editProviderCny" name="providerCny" type="number" min="0.01" step="0.01" required />
+        </label>
+        <label>
+          <span id="editProviderCreditLabel">到账美元额度</span>
+          <input id="editProviderCredit" name="providerCredit" type="number" min="0.01" step="0.01" required />
+        </label>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="editProviderActualInputLabel">实际输入价（美元/M）</span>
+            <input id="editProviderActualInput" name="providerActualInput" type="number" min="0" step="0.0001" placeholder="可选：1.4" />
+          </label>
+          <label>
+            <span id="editProviderInputPriceLabel">官方输入价（美元/M）</span>
+            <input id="editProviderOfficialInput" name="providerOfficialInput" type="number" min="0" step="0.0001" required />
+          </label>
+        </div>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="editProviderActualOutputLabel">实际输出价（美元/M）</span>
+            <input id="editProviderActualOutput" name="providerActualOutput" type="number" min="0.0001" step="0.0001" placeholder="可选：8.4" />
+          </label>
+          <label>
+            <span id="editProviderOutputPriceLabel">官方输出价（美元/M）</span>
+            <input id="editProviderOfficialOutput" name="providerOfficialOutput" type="number" min="0.0001" step="0.0001" required />
+          </label>
+        </div>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="editProviderActualCacheLabel">实际缓存价（美元/M）</span>
+            <input id="editProviderActualCache" name="providerActualCache" type="number" min="0" step="0.0001" placeholder="可选：0.14" />
+          </label>
+          <label>
+            <span id="editProviderCachePriceLabel">官方缓存价（美元/M）</span>
+            <input id="editProviderOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" required />
+          </label>
+        </div>
+        <label id="editProviderMultiplierLabel" class="multiplier-label">
+          <span>渠道倍率</span>
+          <input id="editProviderMultiplier" name="providerMultiplier" type="number" min="0" step="0.0001" required />
+        </label>
+        <div class="modal-actions">
+          <button id="cancelEditProviderBtn" type="button" class="ghost-btn">取消</button>
+          <button type="submit" class="primary-btn">保存修改</button>
+        </div>
+      </form>
+    </section>
+  </div>
   <script src="./script.js"></script>
 </body>
 </html>

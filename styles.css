@@ -390,9 +390,8 @@ td.highlight { color: var(--success); font-size: 18px; }
   min-width: 0;
 }
 
-.provider-form .price-pair label:first-child {
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.multiplier-label {
+  align-self: start;
 }
 
 .provider-form input, .provider-form select {
@@ -428,6 +427,59 @@ td.highlight { color: var(--success); font-size: 18px; }
   margin: 14px 0 0;
   color: #bbf7d0;
   font-weight: 800;
+}
+
+.modal-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+}
+
+.modal-shell.is-open {
+  display: flex;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 7, 6, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1180px);
+  max-height: min(86vh, 860px);
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.12), rgba(249, 115, 22, 0.1)), #2b2422;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+}
+
+.modal-title-row {
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-actions .primary-btn {
+  grid-column: auto;
+}
+
+body.has-open-modal {
+  overflow: hidden;
 }
 
 .delete-btn {

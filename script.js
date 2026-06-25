@@ -67,17 +67,34 @@ const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
 const providerCreditLabel = document.querySelector('#providerCreditLabel');
-const providerActualInput = document.querySelector('#providerActualInput');
-const providerActualOutput = document.querySelector('#providerActualOutput');
-const providerActualCache = document.querySelector('#providerActualCache');
+const providerActualInput = providerForm.querySelector('#providerActualInput');
+const providerActualOutput = providerForm.querySelector('#providerActualOutput');
+const providerActualCache = providerForm.querySelector('#providerActualCache');
 const providerActualInputLabel = document.querySelector('#providerActualInputLabel');
 const providerActualOutputLabel = document.querySelector('#providerActualOutputLabel');
 const providerActualCacheLabel = document.querySelector('#providerActualCacheLabel');
-const actualPriceFields = document.querySelectorAll('.actual-price-field');
+const actualPriceFields = providerForm.querySelectorAll('.actual-price-field');
 const providerInputPriceLabel = document.querySelector('#providerInputPriceLabel');
 const providerOutputPriceLabel = document.querySelector('#providerOutputPriceLabel');
 const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel');
 const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel');
+const editProviderModal = document.querySelector('#editProviderModal');
+const editProviderForm = document.querySelector('#editProviderForm');
+const editProviderPricingMode = document.querySelector('#editProviderPricingMode');
+const editProviderCreditLabel = document.querySelector('#editProviderCreditLabel');
+const editProviderActualInput = editProviderForm.querySelector('#editProviderActualInput');
+const editProviderActualOutput = editProviderForm.querySelector('#editProviderActualOutput');
+const editProviderActualCache = editProviderForm.querySelector('#editProviderActualCache');
+const editProviderActualInputLabel = document.querySelector('#editProviderActualInputLabel');
+const editProviderActualOutputLabel = document.querySelector('#editProviderActualOutputLabel');
+const editProviderActualCacheLabel = document.querySelector('#editProviderActualCacheLabel');
+const editProviderActualPriceFields = editProviderForm.querySelectorAll('.actual-price-field');
+const editProviderInputPriceLabel = document.querySelector('#editProviderInputPriceLabel');
+const editProviderOutputPriceLabel = document.querySelector('#editProviderOutputPriceLabel');
+const editProviderCachePriceLabel = document.querySelector('#editProviderCachePriceLabel');
+const editProviderMultiplierLabel = document.querySelector('#editProviderMultiplierLabel');
+const closeEditModalBtn = document.querySelector('#closeEditModalBtn');
+const cancelEditProviderBtn = document.querySelector('#cancelEditProviderBtn');
 const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
 const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
@@ -400,28 +417,53 @@ function formatFormNumber(value) {
   return Number.parseFloat(value.toFixed(6)).toString();
 }
 
-function derivedMultiplierFromActualPrices() {
-  const officialOutput = readPositiveNumberInput(document.querySelector('#providerOfficialOutput'));
-  const actualOutput = readPositiveNumberInput(providerActualOutput);
+function derivedMultiplierFromActualPrices(controls) {
+  const officialOutput = readPositiveNumberInput(controls.officialOutput);
+  const actualOutput = readPositiveNumberInput(controls.actualOutput);
   if (officialOutput && actualOutput) return actualOutput / officialOutput;
 
-  const officialInput = readPositiveNumberInput(document.querySelector('#providerOfficialInput'));
-  const actualInput = readPositiveNumberInput(providerActualInput);
+  const officialInput = readPositiveNumberInput(controls.officialInput);
+  const actualInput = readPositiveNumberInput(controls.actualInput);
   if (officialInput && actualInput) return actualInput / officialInput;
 
-  const officialCache = readPositiveNumberInput(document.querySelector('#providerOfficialCache'));
-  const actualCache = readPositiveNumberInput(providerActualCache);
+  const officialCache = readPositiveNumberInput(controls.officialCache);
+  const actualCache = readPositiveNumberInput(controls.actualCache);
   if (officialCache && actualCache) return actualCache / officialCache;
 
   return null;
 }
 
-function updateMultiplierFromActualPrices() {
-  if (providerPricingMode.value === 'cny') return;
-  const multiplier = derivedMultiplierFromActualPrices();
+function updateMultiplierFromActualPrices(controls) {
+  if (controls.pricingMode.value === 'cny') return;
+  const multiplier = derivedMultiplierFromActualPrices(controls);
   if (multiplier === null) return;
-  const multiplierInput = document.querySelector('#providerMultiplier');
-  multiplierInput.value = formatFormNumber(multiplier);
+  controls.multiplier.value = formatFormNumber(multiplier);
+}
+
+function addFormControls() {
+  return {
+    pricingMode: providerPricingMode,
+    actualInput: providerActualInput,
+    actualOutput: providerActualOutput,
+    actualCache: providerActualCache,
+    officialInput: document.querySelector('#providerOfficialInput'),
+    officialOutput: document.querySelector('#providerOfficialOutput'),
+    officialCache: document.querySelector('#providerOfficialCache'),
+    multiplier: document.querySelector('#providerMultiplier'),
+  };
+}
+
+function editFormControls() {
+  return {
+    pricingMode: editProviderPricingMode,
+    actualInput: editProviderActualInput,
+    actualOutput: editProviderActualOutput,
+    actualCache: editProviderActualCache,
+    officialInput: document.querySelector('#editProviderOfficialInput'),
+    officialOutput: document.querySelector('#editProviderOfficialOutput'),
+    officialCache: document.querySelector('#editProviderOfficialCache'),
+    multiplier: document.querySelector('#editProviderMultiplier'),
+  };
 }
 
 function modeLabel(provider) {
@@ -535,11 +577,6 @@ function cloneProvider(provider) {
   return JSON.parse(JSON.stringify(provider));
 }
 
-function safeNumberValue(value, fallback = 0) {
-  const next = Number(value);
-  return Number.isFinite(next) ? next : fallback;
-}
-
 function tableText(value, className = '') {
   return `<span class="table-value ${className}">${escapeHtml(value)}</span>`;
 }
@@ -564,32 +601,13 @@ function rawPriceValue(provider, kind) {
   return { input: provider.officialInputPrice, output: provider.officialOutputPrice, cache: provider.officialCachePrice }[kind];
 }
 
-function editInput(field, value, type = 'number', extra = '') {
-  const safeValue = ['text', 'url'].includes(type) ? escapeHtml(value ?? '') : value ?? '';
-  return `<input class="table-input edit-input" data-edit-field="${field}" type="${type}" value="${safeValue}" ${extra}>`;
-}
-
-function editPrefixedInput(field, value, prefix, extra = '') {
-  return `<div class="prefixed-input"><span>${prefix}</span>${editInput(field, value, 'number', extra)}</div>`;
-}
-
-function pricingModeSelect(provider) {
-  const mode = providerMode(provider);
-  return `
-    <select class="table-input table-select edit-input" data-edit-field="pricingMode" aria-label="计价方式">
-      <option value="usd" ${mode === 'usd' ? 'selected' : ''}>美元额度</option>
-      <option value="cny" ${mode === 'cny' ? 'selected' : ''}>人民币直扣</option>
-    </select>`;
-}
-
 function beginEditProvider(id) {
   const provider = providers.find(item => item.id === id);
   if (!provider) return;
   editingProviderId = id;
   editDraft = cloneProvider(provider);
-  officialVisibleBeforeEdit = forceShowOfficialPrices;
-  forceShowOfficialPrices = true;
-  render();
+  fillEditProviderForm(editDraft);
+  openEditModal();
 }
 
 function clearEditState(options = {}) {
@@ -601,50 +619,35 @@ function clearEditState(options = {}) {
   officialVisibleBeforeEdit = null;
 }
 
-function convertDraftPricingMode(nextMode) {
-  if (!editDraft) return;
-  const normalizedMode = nextMode === 'cny' ? 'cny' : 'usd';
-  const previousMode = providerMode(editDraft);
-  if (previousMode === normalizedMode) return;
-
-  if (normalizedMode === 'cny') {
-    editDraft.pricingMode = 'cny';
-    editDraft.cnyCredit = safeNumberValue(editDraft.cnyCredit ?? editDraft.usdCredit ?? editDraft.rechargeCny, editDraft.rechargeCny);
-    editDraft.cnyInputPrice = safeNumberValue(editDraft.cnyInputPrice ?? editDraft.officialInputPrice ?? OFFICIAL_PRICE.inputPrice, OFFICIAL_PRICE.inputPrice);
-    editDraft.cnyOutputPrice = safeNumberValue(editDraft.cnyOutputPrice ?? editDraft.officialOutputPrice ?? OFFICIAL_PRICE.outputPrice, OFFICIAL_PRICE.outputPrice);
-    editDraft.cnyCachePrice = safeNumberValue(editDraft.cnyCachePrice ?? editDraft.officialCachePrice ?? OFFICIAL_PRICE.cachePrice, OFFICIAL_PRICE.cachePrice);
-    editDraft.multiplier = 1;
-    return;
-  }
-
-  editDraft.pricingMode = 'usd';
-  editDraft.usdCredit = safeNumberValue(editDraft.usdCredit ?? editDraft.cnyCredit ?? editDraft.rechargeCny, editDraft.rechargeCny);
-  editDraft.officialInputPrice = safeNumberValue(editDraft.officialInputPrice ?? editDraft.cnyInputPrice ?? OFFICIAL_PRICE.inputPrice, OFFICIAL_PRICE.inputPrice);
-  editDraft.officialOutputPrice = safeNumberValue(editDraft.officialOutputPrice ?? editDraft.cnyOutputPrice ?? OFFICIAL_PRICE.outputPrice, OFFICIAL_PRICE.outputPrice);
-  editDraft.officialCachePrice = safeNumberValue(editDraft.officialCachePrice ?? editDraft.cnyCachePrice ?? OFFICIAL_PRICE.cachePrice, OFFICIAL_PRICE.cachePrice);
-  editDraft.multiplier = safeNumberValue(editDraft.multiplier, 1);
-}
-
-function updateEditDraftField(field, rawValue) {
-  if (!editDraft) return;
-  if (field === 'pricingMode') {
-    convertDraftPricingMode(rawValue);
-    return;
-  }
-
-  if (field === 'name' || field === 'siteUrl') {
-    editDraft[field] = String(rawValue);
-    return;
-  }
-
-  editDraft[field] = rawValue === '' ? '' : Number(rawValue);
-}
-
 function saveEditProvider() {
-  if (!editingProviderId || !editDraft) return;
-  const normalized = normalizeProvider(editDraft);
+  if (!editingProviderId) return;
+  const pricingMode = editProviderPricingMode.value === 'cny' ? 'cny' : 'usd';
+  if (pricingMode === 'usd') updateMultiplierFromActualPrices(editFormControls());
+  const formData = new FormData(editProviderForm);
+  const baseProvider = {
+    pricingMode,
+    name: formData.get('providerName'),
+    siteUrl: formData.get('providerLink'),
+    rechargeCny: formData.get('providerCny'),
+  };
+  const normalized = normalizeProvider(pricingMode === 'cny'
+    ? {
+      ...baseProvider,
+      cnyCredit: formData.get('providerCredit'),
+      cnyInputPrice: formData.get('providerOfficialInput'),
+      cnyOutputPrice: formData.get('providerOfficialOutput'),
+      cnyCachePrice: formData.get('providerOfficialCache'),
+    }
+    : {
+      ...baseProvider,
+      usdCredit: formData.get('providerCredit'),
+      officialInputPrice: formData.get('providerOfficialInput'),
+      officialOutputPrice: formData.get('providerOfficialOutput'),
+      officialCachePrice: formData.get('providerOfficialCache'),
+      multiplier: formData.get('providerMultiplier'),
+    });
   if (!normalized) {
-    showMessage(providerMode(editDraft) === 'cny'
+    showMessage(pricingMode === 'cny'
       ? '请确认名称、充值金额、到账人民币和人民币价格都有效。'
       : '请确认名称、充值金额、美元额度、官方价格和倍率都有效。');
     return;
@@ -653,6 +656,7 @@ function saveEditProvider() {
   normalized.id = editingProviderId;
   providers = providers.map(provider => provider.id === editingProviderId ? normalized : provider);
   clearEditState();
+  closeEditModal();
   saveProviders();
   render();
   showMessage(`已保存「${normalized.name}」。`);
@@ -660,52 +664,82 @@ function saveEditProvider() {
 
 function cancelEditProvider() {
   clearEditState();
-  render();
+  closeEditModal();
+}
+
+function openEditModal() {
+  editProviderModal.classList.add('is-open');
+  editProviderModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('has-open-modal');
+  window.setTimeout(() => document.querySelector('#editProviderName')?.focus(), 0);
+}
+
+function closeEditModal() {
+  editProviderModal.classList.remove('is-open');
+  editProviderModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('has-open-modal');
+}
+
+function setEditValue(selector, value) {
+  const input = document.querySelector(selector);
+  if (input) input.value = value ?? '';
+}
+
+function fillEditProviderForm(provider) {
+  const mode = providerMode(provider);
+  editProviderForm.reset();
+  setEditValue('#editProviderName', provider.name);
+  setEditValue('#editProviderLink', provider.siteUrl || '');
+  editProviderPricingMode.value = mode;
+  setEditValue('#editProviderCny', provider.rechargeCny);
+  setEditValue('#editProviderCredit', creditAmount(provider));
+  setEditValue('#editProviderOfficialInput', rawPriceValue(provider, 'input'));
+  setEditValue('#editProviderOfficialOutput', rawPriceValue(provider, 'output'));
+  setEditValue('#editProviderOfficialCache', rawPriceValue(provider, 'cache'));
+  setEditValue('#editProviderMultiplier', mode === 'cny' ? 1 : provider.multiplier);
+  if (mode === 'usd') {
+    setEditValue('#editProviderActualInput', formatFormNumber(originalInputPrice(provider)));
+    setEditValue('#editProviderActualOutput', formatFormNumber(originalOutputPrice(provider)));
+    setEditValue('#editProviderActualCache', formatFormNumber(originalCachePrice(provider)));
+  } else {
+    setEditValue('#editProviderActualInput', '');
+    setEditValue('#editProviderActualOutput', '');
+    setEditValue('#editProviderActualCache', '');
+  }
+  applyEditPricingModeToForm(mode);
 }
 
 function renderProviderRow(provider, showOfficial) {
-  const isEditing = editingProviderId === provider.id && editDraft;
-  const viewProvider = isEditing ? editDraft : provider;
+  const viewProvider = provider;
   const isCnyMode = providerMode(viewProvider) === 'cny';
   const [inputLabel, outputLabel, cacheLabel] = displayPriceLabels().map(escapeHtml);
   const targetPriceLabel = escapeHtml(targetOutputPriceLabel());
   const actionButtons = isReadOnlyMode
     ? ''
-    : (isEditing
-      ? `<div class="row-actions">
-          <button class="save-btn" type="button" data-id="${provider.id}" aria-label="保存 ${escapeHtml(viewProvider.name)}">保存</button>
-          <button class="cancel-btn" type="button" data-id="${provider.id}" aria-label="取消编辑 ${escapeHtml(viewProvider.name)}">取消</button>
-          <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
-        </div>`
-      : `<div class="row-actions">
+    : `<div class="row-actions">
           <button class="edit-btn" type="button" data-id="${provider.id}" aria-label="编辑 ${escapeHtml(viewProvider.name)}">编辑</button>
           <button class="delete-btn" type="button" data-id="${provider.id}" aria-label="删除 ${escapeHtml(viewProvider.name)}">删除</button>
-        </div>`);
+        </div>`;
 
-  const directPriceEditCells = isEditing && isCnyMode
-    ? `
-      <td class="muted actual-price direct-price-edit-cell" data-label="${inputLabel}">${editPrefixedInput('cnyInputPrice', viewProvider.cnyInputPrice, '¥', 'min="0" step="0.0001" aria-label="输入价（人民币/M）"')}</td>
-      <td class="muted actual-price direct-price-edit-cell" data-label="${outputLabel}">${editPrefixedInput('cnyOutputPrice', viewProvider.cnyOutputPrice, '¥', 'min="0.0001" step="0.0001" aria-label="输出价（人民币/M）"')}</td>
-      <td class="muted actual-price direct-price-edit-cell" data-label="${cacheLabel}">${editPrefixedInput('cnyCachePrice', viewProvider.cnyCachePrice, '¥', 'min="0" step="0.0001" aria-label="缓存价（人民币/M）"')}</td>`
-    : `
+  const directPriceEditCells = `
       <td class="muted actual-price" data-label="${inputLabel}">${formatDisplayUnitPrice(viewProvider, 'input')}</td>
       <td class="muted actual-price" data-label="${outputLabel}">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
       <td class="muted actual-price" data-label="${cacheLabel}">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
 
   const detailCells = `
-      <td data-label="充值金额">${isEditing ? editInput('rechargeCny', viewProvider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"') : tableText(viewProvider.rechargeCny)}</td>
-      <td data-label="到账额度">${isEditing ? editPrefixedInput(creditField(viewProvider), creditAmount(viewProvider), creditCurrency(viewProvider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`) : `${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}`}</td>
-      <td data-label="渠道倍率">${isCnyMode ? '<span class="muted muted-dash">-</span>' : (isEditing ? editInput('multiplier', viewProvider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"') : tableText(viewProvider.multiplier))}</td>
+      <td data-label="充值金额">${tableText(viewProvider.rechargeCny)}</td>
+      <td data-label="到账额度">${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}</td>
+      <td data-label="渠道倍率">${isCnyMode ? '<span class="muted muted-dash">-</span>' : tableText(viewProvider.multiplier)}</td>
       ${showOfficial ? `
-        <td class="official-price-cell" data-label="官方输入">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'input'), rawPriceValue(viewProvider, 'input'), 'number', 'min="0" step="0.0001" aria-label="官方输入价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider))))}</td>
-        <td class="official-price-cell" data-label="官方输出">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'output'), rawPriceValue(viewProvider, 'output'), 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider))))}</td>
-        <td class="official-price-cell" data-label="官方缓存">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'cache'), rawPriceValue(viewProvider, 'cache'), 'number', 'min="0" step="0.0001" aria-label="官方缓存价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell" data-label="官方输入">${tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider)))}</td>
+        <td class="official-price-cell" data-label="官方输出">${tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider)))}</td>
+        <td class="official-price-cell" data-label="官方缓存">${tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider)))}</td>
       ` : ''}
       ${directPriceEditCells}`;
 
   return `
-    <tr class="${isEditing ? 'is-editing' : ''}">
-      <td class="provider-cell" data-label="中转站">${isEditing ? `<div class="provider-name-stack">${editInput('name', viewProvider.name, 'text', 'aria-label="中转站名称"')}${editInput('siteUrl', viewProvider.siteUrl || '', 'text', 'placeholder="跳转链接" aria-label="跳转链接"')}${pricingModeSelect(viewProvider)}</div>` : providerNameDisplay(viewProvider)}</td>
+    <tr>
+      <td class="provider-cell" data-label="中转站">${providerNameDisplay(viewProvider)}</td>
       ${detailCells}
       <td class="highlight result-output" data-label="每 ¥${escapeHtml(String(getRechargeAmount()))} 输出">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>
       <td class="highlight price-cost" data-label="${targetPriceLabel}">${formatMoney(costForOutput(viewProvider, getTargetTokenMillion()))}</td>
@@ -1079,11 +1113,11 @@ providerPricingMode.addEventListener('change', () => {
 });
 
 [providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
-  input?.addEventListener('input', updateMultiplierFromActualPrices);
+  input?.addEventListener('input', () => updateMultiplierFromActualPrices(addFormControls()));
 });
 
 ['#providerOfficialInput', '#providerOfficialOutput', '#providerOfficialCache'].forEach(selector => {
-  document.querySelector(selector)?.addEventListener('input', updateMultiplierFromActualPrices);
+  document.querySelector(selector)?.addEventListener('input', () => updateMultiplierFromActualPrices(addFormControls()));
 });
 
 document.querySelector('#providerMultiplier')?.addEventListener('input', () => {
@@ -1092,11 +1126,45 @@ document.querySelector('#providerMultiplier')?.addEventListener('input', () => {
   });
 });
 
+editProviderPricingMode.addEventListener('change', () => {
+  applyEditPricingModeToForm(editProviderPricingMode.value);
+});
+
+[editProviderActualInput, editProviderActualOutput, editProviderActualCache].forEach(input => {
+  input?.addEventListener('input', () => updateMultiplierFromActualPrices(editFormControls()));
+});
+
+['#editProviderOfficialInput', '#editProviderOfficialOutput', '#editProviderOfficialCache'].forEach(selector => {
+  document.querySelector(selector)?.addEventListener('input', () => updateMultiplierFromActualPrices(editFormControls()));
+});
+
+document.querySelector('#editProviderMultiplier')?.addEventListener('input', () => {
+  [editProviderActualInput, editProviderActualOutput, editProviderActualCache].forEach(input => {
+    if (input) input.value = '';
+  });
+});
+
+editProviderForm.addEventListener('submit', event => {
+  event.preventDefault();
+  saveEditProvider();
+});
+
+closeEditModalBtn.addEventListener('click', cancelEditProvider);
+cancelEditProviderBtn.addEventListener('click', cancelEditProvider);
+editProviderModal.addEventListener('click', event => {
+  if (event.target.closest('[data-close-edit-modal]')) cancelEditProvider();
+});
+window.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && editProviderModal.classList.contains('is-open')) {
+    cancelEditProvider();
+  }
+});
+
 providerForm.addEventListener('submit', event => {
   event.preventDefault();
   if (!ensureWritableMode()) return;
   const pricingMode = providerPricingMode.value === 'cny' ? 'cny' : 'usd';
-  if (pricingMode === 'usd') updateMultiplierFromActualPrices();
+  if (pricingMode === 'usd') updateMultiplierFromActualPrices(addFormControls());
   const formData = new FormData(providerForm);
   const baseProvider = {
     pricingMode,
@@ -1146,18 +1214,6 @@ rowsEl.addEventListener('click', event => {
     return;
   }
 
-  const saveButton = event.target.closest('.save-btn');
-  if (saveButton) {
-    saveEditProvider();
-    return;
-  }
-
-  const cancelButton = event.target.closest('.cancel-btn');
-  if (cancelButton) {
-    cancelEditProvider();
-    return;
-  }
-
   const deleteButton = event.target.closest('.delete-btn');
   if (!deleteButton) return;
   const provider = providers.find(item => item.id === deleteButton.dataset.id);
@@ -1166,31 +1222,6 @@ rowsEl.addEventListener('click', event => {
   saveProviders();
   render();
   showMessage(provider ? `已删除「${provider.name}」。` : '已删除渠道。');
-});
-
-rowsEl.addEventListener('input', event => {
-  const input = event.target.closest('[data-edit-field]');
-  if (!input) return;
-  if (input.dataset.editField === 'pricingMode') return;
-  updateEditDraftField(input.dataset.editField, input.value);
-});
-
-rowsEl.addEventListener('change', event => {
-  const input = event.target.closest('[data-edit-field]');
-  if (!input) return;
-  updateEditDraftField(input.dataset.editField, input.value);
-  if (input.dataset.editField === 'pricingMode') {
-    showMessage('已切换计价方式，请确认到账和价格单位是否正确。');
-    render();
-  }
-});
-
-rowsEl.addEventListener('keydown', event => {
-  if (event.key !== 'Enter') return;
-  const input = event.target.closest('[data-edit-field]');
-  if (!input) return;
-  event.preventDefault();
-  saveEditProvider();
 });
 
 function applyPricingModeToForm(mode) {
@@ -1212,6 +1243,26 @@ function applyPricingModeToForm(mode) {
   if (isCnyMode) {
     document.querySelector('#providerMultiplier').value = 1;
     [providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
+      if (input) input.value = '';
+    });
+  }
+}
+
+function applyEditPricingModeToForm(mode) {
+  const isCnyMode = mode === 'cny';
+  editProviderCreditLabel.textContent = isCnyMode ? '到账人民币余额' : '到账美元额度';
+  editProviderActualInputLabel.textContent = isCnyMode ? '实际输入价（人民币/M）' : '实际输入价（美元/M）';
+  editProviderActualOutputLabel.textContent = isCnyMode ? '实际输出价（人民币/M）' : '实际输出价（美元/M）';
+  editProviderActualCacheLabel.textContent = isCnyMode ? '实际缓存价（人民币/M）' : '实际缓存价（美元/M）';
+  editProviderInputPriceLabel.textContent = isCnyMode ? '输入价（人民币/M）' : '官方输入价（美元/M）';
+  editProviderOutputPriceLabel.textContent = isCnyMode ? '输出价（人民币/M）' : '官方输出价（美元/M）';
+  editProviderCachePriceLabel.textContent = isCnyMode ? '缓存价（人民币/M，可填 0）' : '官方缓存价（美元/M）';
+  editProviderActualPriceFields.forEach(field => field.classList.toggle('is-hidden', isCnyMode));
+  editProviderMultiplierLabel.classList.toggle('is-hidden', isCnyMode);
+  document.querySelector('#editProviderMultiplier').required = !isCnyMode;
+  if (isCnyMode) {
+    document.querySelector('#editProviderMultiplier').value = 1;
+    [editProviderActualInput, editProviderActualOutput, editProviderActualCache].forEach(input => {
       if (input) input.value = '';
     });
   }
