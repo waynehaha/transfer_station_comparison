@@ -7,6 +7,7 @@ const OFFICIAL_PRICE = {
   outputPrice: 30,
   cachePrice: 0.5,
 };
+const SPEED_OPTIONS = ['快', '中', '慢'];
 
 const defaultProviders = [
   {
@@ -66,6 +67,7 @@ const importDataBtn = document.querySelector('#importDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
+const providerSpeed = document.querySelector('#providerSpeed');
 const providerCreditLabel = document.querySelector('#providerCreditLabel');
 const providerActualInput = providerForm.querySelector('#providerActualInput');
 const providerActualOutput = providerForm.querySelector('#providerActualOutput');
@@ -81,6 +83,7 @@ const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel
 const editProviderModal = document.querySelector('#editProviderModal');
 const editProviderForm = document.querySelector('#editProviderForm');
 const editProviderPricingMode = document.querySelector('#editProviderPricingMode');
+const editProviderSpeed = document.querySelector('#editProviderSpeed');
 const editProviderCreditLabel = document.querySelector('#editProviderCreditLabel');
 const editProviderActualInput = editProviderForm.querySelector('#editProviderActualInput');
 const editProviderActualOutput = editProviderForm.querySelector('#editProviderActualOutput');
@@ -142,6 +145,7 @@ function providerSignature(list) {
     pricingMode: item.pricingMode || 'usd',
     name: item.name,
     siteUrl: item.siteUrl || '',
+    perceivedSpeed: normalizePerceivedSpeed(item.perceivedSpeed ?? item.speed),
     rechargeCny: Number(item.rechargeCny),
     usdCredit: Number(item.usdCredit || 0),
     cnyCredit: Number(item.cnyCredit || 0),
@@ -163,6 +167,15 @@ function providerMode(provider) {
   return provider?.pricingMode === 'cny' ? 'cny' : 'usd';
 }
 
+function normalizePerceivedSpeed(value) {
+  const text = String(value || '').trim();
+  return SPEED_OPTIONS.includes(text) ? text : '';
+}
+
+function speedDisplay(provider) {
+  return normalizePerceivedSpeed(provider?.perceivedSpeed ?? provider?.speed) || '-';
+}
+
 function normalizeProviderUrl(value) {
   const raw = String(value || '').trim();
   if (!raw) return '';
@@ -180,6 +193,7 @@ function normalizeProvider(provider) {
   const pricingMode = providerMode(provider);
   const name = String(provider?.name || '').trim();
   const siteUrl = normalizeProviderUrl(provider?.siteUrl ?? provider?.link ?? provider?.url ?? provider?.href);
+  const perceivedSpeed = normalizePerceivedSpeed(provider?.perceivedSpeed ?? provider?.speed);
   const rechargeCny = Number(provider?.rechargeCny);
 
   if (!name || rechargeCny <= 0) return null;
@@ -197,6 +211,7 @@ function normalizeProvider(provider) {
       pricingMode,
       name,
       siteUrl,
+      perceivedSpeed,
       rechargeCny,
       cnyCredit,
       cnyInputPrice,
@@ -225,6 +240,7 @@ function normalizeProvider(provider) {
     pricingMode,
     name,
     siteUrl,
+    perceivedSpeed,
     rechargeCny,
     usdCredit,
     officialInputPrice,
@@ -628,6 +644,7 @@ function saveEditProvider() {
     pricingMode,
     name: formData.get('providerName'),
     siteUrl: formData.get('providerLink'),
+    perceivedSpeed: formData.get('providerSpeed'),
     rechargeCny: formData.get('providerCny'),
   };
   const normalized = normalizeProvider(pricingMode === 'cny'
@@ -691,6 +708,7 @@ function fillEditProviderForm(provider) {
   setEditValue('#editProviderName', provider.name);
   setEditValue('#editProviderLink', provider.siteUrl || '');
   editProviderPricingMode.value = mode;
+  editProviderSpeed.value = normalizePerceivedSpeed(provider.perceivedSpeed ?? provider.speed);
   setEditValue('#editProviderCny', provider.rechargeCny);
   setEditValue('#editProviderCredit', creditAmount(provider));
   setEditValue('#editProviderOfficialInput', rawPriceValue(provider, 'input'));
@@ -730,6 +748,7 @@ function renderProviderRow(provider, showOfficial) {
       <td data-label="充值金额">${tableText(viewProvider.rechargeCny)}</td>
       <td data-label="到账额度">${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}</td>
       <td data-label="渠道倍率">${isCnyMode ? '<span class="muted muted-dash">-</span>' : tableText(viewProvider.multiplier)}</td>
+      <td data-label="体感速度">${tableText(speedDisplay(viewProvider))}</td>
       ${showOfficial ? `
         <td class="official-price-cell" data-label="官方输入">${tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider)))}</td>
         <td class="official-price-cell" data-label="官方输出">${tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider)))}</td>
@@ -759,6 +778,7 @@ function renderTableHead(showOfficial) {
     <th>充值 ¥</th>
     <th>到账</th>
     <th>渠道倍率</th>
+    <th>体感速度</th>
     ${showOfficial ? '<th class="official-price-head">官方输入</th><th class="official-price-head">官方输出</th><th class="official-price-head">官方缓存</th>' : ''}
     <th>${inputLabel}</th>
     <th>${outputLabel}</th>
@@ -790,7 +810,7 @@ function renderTableHead(showOfficial) {
 function renderEmptyState() {
   const showOfficial = shouldShowOfficialColumns();
   renderTableHead(showOfficial);
-  const columnCount = (showOfficial ? 12 : 9) + (isReadOnlyMode ? 0 : 1);
+  const columnCount = (showOfficial ? 13 : 10) + (isReadOnlyMode ? 0 : 1);
   rowsEl.innerHTML = `<tr><td colspan="${columnCount}" class="muted">${isReadOnlyMode ? '暂无渠道数据。' : '暂无渠道，请先新增。'}</td></tr>`;
   scheduleTableOverflowCheck();
 }
@@ -928,6 +948,7 @@ function coreProviderData(provider) {
     pricingMode: providerMode(provider),
     name: String(provider.name || '').trim(),
     siteUrl: normalizeProviderUrl(provider.siteUrl),
+    perceivedSpeed: normalizePerceivedSpeed(provider.perceivedSpeed ?? provider.speed),
     rechargeCny: Number(provider.rechargeCny),
     usdCredit: Number(provider.usdCredit || 0),
     cnyCredit: Number(provider.cnyCredit || 0),
@@ -1170,6 +1191,7 @@ providerForm.addEventListener('submit', event => {
     pricingMode,
     name: formData.get('providerName'),
     siteUrl: formData.get('providerLink'),
+    perceivedSpeed: formData.get('providerSpeed'),
     rechargeCny: formData.get('providerCny'),
   };
 
@@ -1270,6 +1292,7 @@ function applyEditPricingModeToForm(mode) {
 
 function setFormDefaults() {
   providerPricingMode.value = 'usd';
+  providerSpeed.value = '';
   document.querySelector('#providerOfficialInput').value = OFFICIAL_PRICE.inputPrice;
   document.querySelector('#providerOfficialOutput').value = OFFICIAL_PRICE.outputPrice;
   document.querySelector('#providerOfficialCache').value = OFFICIAL_PRICE.cachePrice;

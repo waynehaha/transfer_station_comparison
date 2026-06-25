@@ -297,20 +297,21 @@ button:focus-visible, input:focus-visible, select:focus-visible, .table-input:fo
 }
 
 table {
-  width: 100%;
-  min-width: 1280px;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   table-layout: auto;
 }
 
 table:has(#priceHeadRow[data-official-visible="true"]) {
-  min-width: 1820px;
+  min-width: 100%;
 }
 
 th, td {
   padding: 14px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 th {
@@ -366,7 +367,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 
 .provider-form {
   display: grid;
-  grid-template-columns: repeat(5, minmax(156px, 1fr));
+  grid-template-columns: repeat(6, minmax(144px, 1fr));
   gap: 14px;
   align-items: end;
 }
@@ -610,58 +611,6 @@ body.has-open-modal {
 
   #priceHeadRow th,
   #priceRows td { width: auto; }
-
-  #priceHeadRow th:first-child,
-  #priceRows td:first-child { width: 15%; min-width: 168px; }
-
-  #priceHeadRow th:nth-child(2),
-  #priceRows td:nth-child(2) { width: 8%; min-width: 96px; }
-
-  #priceHeadRow th:nth-child(3),
-  #priceRows td:nth-child(3),
-  #priceHeadRow th:nth-child(4),
-  #priceRows td:nth-child(4) { width: 7%; min-width: 84px; }
-
-  #priceHeadRow th:nth-child(5),
-  #priceRows td:nth-child(5) { width: 7%; min-width: 78px; }
-
-
-
-  #priceHeadRow .official-price-head,
-  #priceRows .official-price-cell {
-    min-width: 130px;
-    width: 130px;
-  }
-
-  #priceRows .official-price-cell .table-input {
-    min-width: 104px;
-    padding: 0 9px;
-  }
-
-  #priceHeadRow th:nth-last-child(7),
-  #priceRows td:nth-last-child(7),
-  #priceHeadRow th:nth-last-child(6),
-  #priceRows td:nth-last-child(6),
-  #priceHeadRow th:nth-last-child(5),
-  #priceRows td:nth-last-child(5) { width: 7%; min-width: 88px; }
-
-  #priceHeadRow th:nth-last-child(4),
-  #priceRows td:nth-last-child(4) { width: 9%; min-width: 104px; }
-
-  #priceHeadRow th:nth-last-child(3),
-  #priceRows td:nth-last-child(3) { width: 11%; min-width: 150px; }
-
-  #priceHeadRow th:nth-last-child(2),
-  #priceRows td:nth-last-child(2) { width: 13%; min-width: 190px; }
-
-  #priceHeadRow th:last-child,
-  #priceRows td:last-child { width: 6%; min-width: 78px; }
-
-  #priceRows td:nth-child(3) .table-input,
-  #priceRows td:nth-child(4) .table-input,
-  #priceRows td:nth-child(5) .table-input {
-    padding: 0 8px;
-  }
 
   .delete-btn {
     min-width: 64px;
@@ -1135,14 +1084,6 @@ tr.is-editing {
   }
 }
 
-@media (min-width: 1100px) {
-  #priceHeadRow th:last-child,
-  #priceRows td:last-child {
-    width: 10%;
-    min-width: 148px;
-  }
-}
-
 .provider-name-stack {
   display: inline-flex;
   flex-direction: column;
@@ -1611,45 +1552,8 @@ body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows td:nth-last-chi
   text-decoration: underline;
 }
 
-/* 公开展示时没有操作列，表格按展示内容均衡铺满，避免中间留出大块空白 */
 body.is-readonly table {
-  table-layout: fixed;
-}
-
-body.is-readonly #priceHeadRow th:first-child,
-body.is-readonly #priceRows td:first-child {
-  width: 18%;
-}
-
-body.is-readonly #priceHeadRow th:nth-child(2),
-body.is-readonly #priceRows td:nth-child(2),
-body.is-readonly #priceHeadRow th:nth-child(3),
-body.is-readonly #priceRows td:nth-child(3) {
-  width: 8%;
-}
-
-body.is-readonly #priceHeadRow th:nth-child(4),
-body.is-readonly #priceRows td:nth-child(4) {
-  width: 7%;
-}
-
-body.is-readonly #priceHeadRow th:nth-child(5),
-body.is-readonly #priceRows td:nth-child(5),
-body.is-readonly #priceHeadRow th:nth-child(6),
-body.is-readonly #priceRows td:nth-child(6),
-body.is-readonly #priceHeadRow th:nth-child(7),
-body.is-readonly #priceRows td:nth-child(7) {
-  width: 9%;
-}
-
-body.is-readonly #priceHeadRow th:nth-last-child(2),
-body.is-readonly #priceRows td:nth-last-child(2) {
-  width: 14%;
-}
-
-body.is-readonly #priceHeadRow th:last-child,
-body.is-readonly #priceRows td:last-child {
-  width: 16%;
+  table-layout: auto;
 }
 
 /* 最终行高亮：鼠标移到某条价格记录时，整行轻微变亮，方便快速定位 */
