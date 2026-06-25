@@ -1570,7 +1570,15 @@ body.is-readonly table {
 .table-wrap.is-horizontal-scrolled #priceRows tr:not(.is-editing):hover > td,
 .table-wrap.has-fixed-column-overlap #priceRows tr:not(.is-editing):hover > td,
 body.is-readonly #priceRows tr:not(.is-editing):hover > td {
-  background: rgba(255, 247, 237, 0.06);
+  background: #332d2a;
+  background-clip: padding-box;
+}
+
+.table-wrap.has-horizontal-overflow #priceRows tr:not(.is-editing):hover > td:nth-last-child(-n + 3),
+.table-wrap.is-horizontal-scrolled #priceRows tr:not(.is-editing):hover > td:nth-last-child(-n + 3),
+.table-wrap.has-fixed-column-overlap #priceRows tr:not(.is-editing):hover > td:nth-last-child(-n + 3) {
+  z-index: 45;
+  background: #332d2a;
   background-clip: padding-box;
 }
 
