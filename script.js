@@ -654,6 +654,7 @@ function beginEditProvider(id) {
   if (!provider) return;
   editingProviderId = id;
   editDraft = cloneProvider(provider);
+  render({ preserveTableHead: true });
   fillEditProviderForm(editDraft);
   openEditModal();
 }
@@ -714,6 +715,7 @@ function saveEditProvider() {
 function cancelEditProvider() {
   clearEditState();
   closeEditModal();
+  render({ preserveTableHead: true });
 }
 
 function openEditModal() {
@@ -820,7 +822,7 @@ function renderProviderRow(provider, showOfficial) {
       ${directPriceEditCells}`;
 
   return `
-    <tr>
+    <tr class="${viewProvider.id === editingProviderId ? 'is-editing' : ''}">
       <td class="provider-cell" data-label="中转站">${providerNameDisplay(viewProvider)}</td>
       ${detailCells}
       <td class="highlight result-output" data-label="每 ¥${escapeHtml(String(getRechargeAmount()))} 输出">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>

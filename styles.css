@@ -1071,7 +1071,21 @@ body.has-open-modal {
 
 tr.is-editing {
   background: rgba(249, 115, 22, 0.075);
-  box-shadow: inset 3px 0 0 rgba(249, 115, 22, 0.75);
+}
+
+tr.is-editing > td:first-child {
+  position: relative;
+}
+
+tr.is-editing > td:first-child::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.9);
+  z-index: 2;
+  pointer-events: none;
 }
 
 .row-actions {
@@ -1606,7 +1620,21 @@ body.is-readonly table {
 }
 
 #priceRows tr:not(.is-editing):hover {
-  box-shadow: inset 3px 0 0 rgba(249, 115, 22, 0.68);
+}
+
+#priceRows tr:not(.is-editing):hover > td:first-child {
+  position: relative;
+}
+
+#priceRows tr:not(.is-editing):hover > td:first-child::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.68);
+  z-index: 2;
+  pointer-events: none;
 }
 
 #priceRows tr:not(.is-editing):hover > td,
