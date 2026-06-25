@@ -143,6 +143,30 @@
       "officialOutputPrice": 30,
       "officialCachePrice": 0.5,
       "multiplier": 0.28
+    },
+    {
+      "id": "284e9537-9104-4b99-84c0-9793c01c2460",
+      "pricingMode": "cny",
+      "name": "智扇AI-GPT5.5",
+      "siteUrl": "http://api.smartfankj.com/register?aff=YbPPCY",
+      "rechargeCny": 70,
+      "cnyCredit": 70,
+      "cnyInputPrice": 7,
+      "cnyOutputPrice": 42,
+      "cnyCachePrice": 0.7,
+      "multiplier": 1
+    },
+    {
+      "id": "dd7e4b19-d4fa-445e-889f-0d58e0c144e0",
+      "pricingMode": "usd",
+      "name": "krill-gpt5.5-轻享天卡12元",
+      "siteUrl": "https://www.krill-ai.com/register?invite=I621YQKBY0",
+      "rechargeCny": 12,
+      "usdCredit": 80,
+      "officialInputPrice": 5,
+      "officialOutputPrice": 30,
+      "officialCachePrice": 0.5,
+      "multiplier": 0.28
     }
   ],
   "note": "中转站价格对比工具的数据文件。这个文件保存在项目里，换浏览器也不会丢。"

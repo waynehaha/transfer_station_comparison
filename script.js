@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'modelRelayPriceProviders:v4';
 const API_URL = '/api/providers';
 const STATIC_DATA_URL = './data/providers.json';
-const CNY_PER_USD = 7.2;
+const CNY_PER_USD = 6.8;
 const OFFICIAL_PRICE = {
   inputPrice: 5,
   outputPrice: 30,
@@ -67,6 +67,13 @@ const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
 const providerCreditLabel = document.querySelector('#providerCreditLabel');
+const providerActualInput = document.querySelector('#providerActualInput');
+const providerActualOutput = document.querySelector('#providerActualOutput');
+const providerActualCache = document.querySelector('#providerActualCache');
+const providerActualInputLabel = document.querySelector('#providerActualInputLabel');
+const providerActualOutputLabel = document.querySelector('#providerActualOutputLabel');
+const providerActualCacheLabel = document.querySelector('#providerActualCacheLabel');
+const actualPriceFields = document.querySelectorAll('.actual-price-field');
 const providerInputPriceLabel = document.querySelector('#providerInputPriceLabel');
 const providerOutputPriceLabel = document.querySelector('#providerOutputPriceLabel');
 const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel');
@@ -250,8 +257,11 @@ function saveProviders() {
 }
 
 async function initializeData() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedReadOnlyMode = ['1', 'true', 'yes'].includes((urlParams.get('readonly') || urlParams.get('readOnly') || '').toLowerCase());
   try {
     const projectProviders = await loadProjectProviders();
+    if (requestedReadOnlyMode) setReadOnlyMode(true);
     const legacyProviders = readLegacyBrowserProviders();
     const defaults = cloneDefaultProviders();
     const hasLegacyChanges = legacyProviders.length > 0 && providerSignature(legacyProviders) !== providerSignature(defaults);
@@ -269,8 +279,8 @@ async function initializeData() {
     console.warn('项目数据读取失败，临时使用浏览器数据。', error);
     const legacyProviders = readLegacyBrowserProviders();
     providers = legacyProviders.length ? legacyProviders : cloneDefaultProviders();
-    setReadOnlyMode(false);
-    showMessage('没有读取到项目数据，临时使用浏览器数据。');
+    setReadOnlyMode(requestedReadOnlyMode);
+    if (!requestedReadOnlyMode) showMessage('没有读取到项目数据，临时使用浏览器数据。');
   }
   setFormDefaults();
   render();
@@ -380,6 +390,39 @@ function formatMoney(value, currency = '¥') {
   return `${currency}${new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(value)}`;
 }
 
+function readPositiveNumberInput(input) {
+  const value = Number(input?.value);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function formatFormNumber(value) {
+  if (!Number.isFinite(value)) return '';
+  return Number.parseFloat(value.toFixed(6)).toString();
+}
+
+function derivedMultiplierFromActualPrices() {
+  const officialOutput = readPositiveNumberInput(document.querySelector('#providerOfficialOutput'));
+  const actualOutput = readPositiveNumberInput(providerActualOutput);
+  if (officialOutput && actualOutput) return actualOutput / officialOutput;
+
+  const officialInput = readPositiveNumberInput(document.querySelector('#providerOfficialInput'));
+  const actualInput = readPositiveNumberInput(providerActualInput);
+  if (officialInput && actualInput) return actualInput / officialInput;
+
+  const officialCache = readPositiveNumberInput(document.querySelector('#providerOfficialCache'));
+  const actualCache = readPositiveNumberInput(providerActualCache);
+  if (officialCache && actualCache) return actualCache / officialCache;
+
+  return null;
+}
+
+function updateMultiplierFromActualPrices() {
+  if (providerPricingMode.value === 'cny') return;
+  const multiplier = derivedMultiplierFromActualPrices();
+  if (multiplier === null) return;
+  const multiplierInput = document.querySelector('#providerMultiplier');
+  multiplierInput.value = formatFormNumber(multiplier);
+}
 
 function modeLabel(provider) {
   return providerMode(provider) === 'cny' ? '人民币直扣' : '美元额度';
@@ -624,6 +667,8 @@ function renderProviderRow(provider, showOfficial) {
   const isEditing = editingProviderId === provider.id && editDraft;
   const viewProvider = isEditing ? editDraft : provider;
   const isCnyMode = providerMode(viewProvider) === 'cny';
+  const [inputLabel, outputLabel, cacheLabel] = displayPriceLabels().map(escapeHtml);
+  const targetPriceLabel = escapeHtml(targetOutputPriceLabel());
   const actionButtons = isReadOnlyMode
     ? ''
     : (isEditing
@@ -639,32 +684,32 @@ function renderProviderRow(provider, showOfficial) {
 
   const directPriceEditCells = isEditing && isCnyMode
     ? `
-      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyInputPrice', viewProvider.cnyInputPrice, '¥', 'min="0" step="0.0001" aria-label="输入价（人民币/M）"')}</td>
-      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyOutputPrice', viewProvider.cnyOutputPrice, '¥', 'min="0.0001" step="0.0001" aria-label="输出价（人民币/M）"')}</td>
-      <td class="muted actual-price direct-price-edit-cell">${editPrefixedInput('cnyCachePrice', viewProvider.cnyCachePrice, '¥', 'min="0" step="0.0001" aria-label="缓存价（人民币/M）"')}</td>`
+      <td class="muted actual-price direct-price-edit-cell" data-label="${inputLabel}">${editPrefixedInput('cnyInputPrice', viewProvider.cnyInputPrice, '¥', 'min="0" step="0.0001" aria-label="输入价（人民币/M）"')}</td>
+      <td class="muted actual-price direct-price-edit-cell" data-label="${outputLabel}">${editPrefixedInput('cnyOutputPrice', viewProvider.cnyOutputPrice, '¥', 'min="0.0001" step="0.0001" aria-label="输出价（人民币/M）"')}</td>
+      <td class="muted actual-price direct-price-edit-cell" data-label="${cacheLabel}">${editPrefixedInput('cnyCachePrice', viewProvider.cnyCachePrice, '¥', 'min="0" step="0.0001" aria-label="缓存价（人民币/M）"')}</td>`
     : `
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'input')}</td>
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
-      <td class="muted actual-price">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
+      <td class="muted actual-price" data-label="${inputLabel}">${formatDisplayUnitPrice(viewProvider, 'input')}</td>
+      <td class="muted actual-price" data-label="${outputLabel}">${formatDisplayUnitPrice(viewProvider, 'output')}</td>
+      <td class="muted actual-price" data-label="${cacheLabel}">${formatDisplayUnitPrice(viewProvider, 'cache')}</td>`;
 
   const detailCells = `
-      <td>${isEditing ? editInput('rechargeCny', viewProvider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"') : tableText(viewProvider.rechargeCny)}</td>
-      <td>${isEditing ? editPrefixedInput(creditField(viewProvider), creditAmount(viewProvider), creditCurrency(viewProvider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`) : `${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}`}</td>
-      <td>${isCnyMode ? '<span class="muted muted-dash">-</span>' : (isEditing ? editInput('multiplier', viewProvider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"') : tableText(viewProvider.multiplier))}</td>
+      <td data-label="充值金额">${isEditing ? editInput('rechargeCny', viewProvider.rechargeCny, 'number', 'min="0.01" step="0.01" aria-label="充值金额"') : tableText(viewProvider.rechargeCny)}</td>
+      <td data-label="到账额度">${isEditing ? editPrefixedInput(creditField(viewProvider), creditAmount(viewProvider), creditCurrency(viewProvider), `min="0.01" step="0.01" aria-label="到账${isCnyMode ? '人民币' : '美元'}"`) : `${tableText(creditCurrency(viewProvider), 'currency-symbol')} ${tableText(creditAmount(viewProvider))}`}</td>
+      <td data-label="渠道倍率">${isCnyMode ? '<span class="muted muted-dash">-</span>' : (isEditing ? editInput('multiplier', viewProvider.multiplier, 'number', 'min="0" step="0.0001" aria-label="渠道倍率"') : tableText(viewProvider.multiplier))}</td>
       ${showOfficial ? `
-        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'input'), rawPriceValue(viewProvider, 'input'), 'number', 'min="0" step="0.0001" aria-label="官方输入价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider))))}</td>
-        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'output'), rawPriceValue(viewProvider, 'output'), 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider))))}</td>
-        <td class="official-price-cell">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'cache'), rawPriceValue(viewProvider, 'cache'), 'number', 'min="0" step="0.0001" aria-label="官方缓存价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell" data-label="官方输入">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'input'), rawPriceValue(viewProvider, 'input'), 'number', 'min="0" step="0.0001" aria-label="官方输入价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'input'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell" data-label="官方输出">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'output'), rawPriceValue(viewProvider, 'output'), 'number', 'min="0.0001" step="0.0001" aria-label="官方输出价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'output'), originalPriceCurrency(viewProvider))))}</td>
+        <td class="official-price-cell" data-label="官方缓存">${isEditing && isCnyMode ? '<span class="muted muted-dash">看右侧</span>' : (isEditing ? editInput(originalPriceField(viewProvider, 'cache'), rawPriceValue(viewProvider, 'cache'), 'number', 'min="0" step="0.0001" aria-label="官方缓存价"') : tableText(formatUnitPrice(rawPriceValue(viewProvider, 'cache'), originalPriceCurrency(viewProvider))))}</td>
       ` : ''}
       ${directPriceEditCells}`;
 
   return `
     <tr class="${isEditing ? 'is-editing' : ''}">
-      <td>${isEditing ? `<div class="provider-name-stack">${editInput('name', viewProvider.name, 'text', 'aria-label="中转站名称"')}${editInput('siteUrl', viewProvider.siteUrl || '', 'text', 'placeholder="跳转链接" aria-label="跳转链接"')}${pricingModeSelect(viewProvider)}</div>` : providerNameDisplay(viewProvider)}</td>
+      <td class="provider-cell" data-label="中转站">${isEditing ? `<div class="provider-name-stack">${editInput('name', viewProvider.name, 'text', 'aria-label="中转站名称"')}${editInput('siteUrl', viewProvider.siteUrl || '', 'text', 'placeholder="跳转链接" aria-label="跳转链接"')}${pricingModeSelect(viewProvider)}</div>` : providerNameDisplay(viewProvider)}</td>
       ${detailCells}
-      <td class="highlight result-output">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>
-      <td class="highlight price-cost">${formatMoney(costForOutput(viewProvider, getTargetTokenMillion()))}</td>
-      ${isReadOnlyMode ? '' : `<td>${actionButtons}</td>`}
+      <td class="highlight result-output" data-label="每 ¥${escapeHtml(String(getRechargeAmount()))} 输出">${formatMillion(outputFor(viewProvider, getRechargeAmount()))}M</td>
+      <td class="highlight price-cost" data-label="${targetPriceLabel}">${formatMoney(costForOutput(viewProvider, getTargetTokenMillion()))}</td>
+      ${isReadOnlyMode ? '' : `<td class="actions-cell" data-label="操作">${actionButtons}</td>`}
     </tr>`;
 }
 
@@ -1033,11 +1078,26 @@ providerPricingMode.addEventListener('change', () => {
   applyPricingModeToForm(providerPricingMode.value);
 });
 
+[providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
+  input?.addEventListener('input', updateMultiplierFromActualPrices);
+});
+
+['#providerOfficialInput', '#providerOfficialOutput', '#providerOfficialCache'].forEach(selector => {
+  document.querySelector(selector)?.addEventListener('input', updateMultiplierFromActualPrices);
+});
+
+document.querySelector('#providerMultiplier')?.addEventListener('input', () => {
+  [providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
+    if (input) input.value = '';
+  });
+});
+
 providerForm.addEventListener('submit', event => {
   event.preventDefault();
   if (!ensureWritableMode()) return;
+  const pricingMode = providerPricingMode.value === 'cny' ? 'cny' : 'usd';
+  if (pricingMode === 'usd') updateMultiplierFromActualPrices();
   const formData = new FormData(providerForm);
-  const pricingMode = formData.get('providerPricingMode') === 'cny' ? 'cny' : 'usd';
   const baseProvider = {
     pricingMode,
     name: formData.get('providerName'),
@@ -1136,16 +1196,25 @@ rowsEl.addEventListener('keydown', event => {
 function applyPricingModeToForm(mode) {
   const isCnyMode = mode === 'cny';
   providerCreditLabel.textContent = isCnyMode ? '到账人民币余额' : '到账美元额度';
+  providerActualInputLabel.textContent = isCnyMode ? '实际输入价（人民币/M）' : '实际输入价（美元/M）';
+  providerActualOutputLabel.textContent = isCnyMode ? '实际输出价（人民币/M）' : '实际输出价（美元/M）';
+  providerActualCacheLabel.textContent = isCnyMode ? '实际缓存价（人民币/M）' : '实际缓存价（美元/M）';
   providerInputPriceLabel.textContent = isCnyMode ? '输入价（人民币/M）' : '官方输入价（美元/M）';
   providerOutputPriceLabel.textContent = isCnyMode ? '输出价（人民币/M）' : '官方输出价（美元/M）';
   providerCachePriceLabel.textContent = isCnyMode ? '缓存价（人民币/M，可填 0）' : '官方缓存价（美元/M）';
+  actualPriceFields.forEach(field => field.classList.toggle('is-hidden', isCnyMode));
   providerMultiplierLabel.classList.toggle('is-hidden', isCnyMode);
   document.querySelector('#providerUsd').placeholder = isCnyMode ? '例如：100' : '例如：100';
   document.querySelector('#providerOfficialInput').placeholder = isCnyMode ? '例如：3' : '默认：5';
   document.querySelector('#providerOfficialOutput').placeholder = isCnyMode ? '例如：24' : '默认：30';
   document.querySelector('#providerOfficialCache').placeholder = isCnyMode ? '没有就填 0' : '默认：0.5';
   document.querySelector('#providerMultiplier').required = !isCnyMode;
-  if (isCnyMode) document.querySelector('#providerMultiplier').value = 1;
+  if (isCnyMode) {
+    document.querySelector('#providerMultiplier').value = 1;
+    [providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
+      if (input) input.value = '';
+    });
+  }
 }
 
 function setFormDefaults() {
@@ -1154,6 +1223,9 @@ function setFormDefaults() {
   document.querySelector('#providerOfficialOutput').value = OFFICIAL_PRICE.outputPrice;
   document.querySelector('#providerOfficialCache').value = OFFICIAL_PRICE.cachePrice;
   document.querySelector('#providerMultiplier').value = 1;
+  [providerActualInput, providerActualOutput, providerActualCache].forEach(input => {
+    if (input) input.value = '';
+  });
   applyPricingModeToForm('usd');
 }
 

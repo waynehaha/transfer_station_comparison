@@ -49,18 +49,36 @@
           <span id="providerCreditLabel">到账美元额度</span>
           <input id="providerUsd" name="providerUsd" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
         </label>
-        <label>
-          <span id="providerInputPriceLabel">官方输入价（美元/M）</span>
-          <input id="providerOfficialInput" name="providerOfficialInput" type="number" min="0" step="0.0001" placeholder="默认：5" required />
-        </label>
-        <label>
-          <span id="providerOutputPriceLabel">官方输出价（美元/M）</span>
-          <input id="providerOfficialOutput" name="providerOfficialOutput" type="number" min="0.0001" step="0.0001" placeholder="默认：30" required />
-        </label>
-        <label>
-          <span id="providerCachePriceLabel">官方缓存价（美元/M）</span>
-          <input id="providerOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" placeholder="默认：0.5" required />
-        </label>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="providerActualInputLabel">实际输入价（美元/M）</span>
+            <input id="providerActualInput" name="providerActualInput" type="number" min="0" step="0.0001" placeholder="可选：1.4" />
+          </label>
+          <label>
+            <span id="providerInputPriceLabel">官方输入价（美元/M）</span>
+            <input id="providerOfficialInput" name="providerOfficialInput" type="number" min="0" step="0.0001" placeholder="默认：5" required />
+          </label>
+        </div>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="providerActualOutputLabel">实际输出价（美元/M）</span>
+            <input id="providerActualOutput" name="providerActualOutput" type="number" min="0.0001" step="0.0001" placeholder="可选：8.4" />
+          </label>
+          <label>
+            <span id="providerOutputPriceLabel">官方输出价（美元/M）</span>
+            <input id="providerOfficialOutput" name="providerOfficialOutput" type="number" min="0.0001" step="0.0001" placeholder="默认：30" required />
+          </label>
+        </div>
+        <div class="price-pair">
+          <label class="actual-price-field">
+            <span id="providerActualCacheLabel">实际缓存价（美元/M）</span>
+            <input id="providerActualCache" name="providerActualCache" type="number" min="0" step="0.0001" placeholder="可选：0.14" />
+          </label>
+          <label>
+            <span id="providerCachePriceLabel">官方缓存价（美元/M）</span>
+            <input id="providerOfficialCache" name="providerOfficialCache" type="number" min="0" step="0.0001" placeholder="默认：0.5" required />
+          </label>
+        </div>
         <label id="providerMultiplierLabel">
           <span>渠道倍率</span>
           <input id="providerMultiplier" name="providerMultiplier" type="number" min="0" step="0.0001" placeholder="例如：0.3" required />
@@ -108,7 +126,7 @@
       <p class="eyebrow">Formula</p>
       <h2 id="formula-title">怎么算的</h2>
       <p>默认展示每个渠道自己的原始报价。切到统一人民币或统一美元后，表格会把不同计价方式换成同一种货币，方便横向比较。</p>
-      <p class="formula-box">目标输出价格 = 目标输出量 × 统一人民币输出价；统一美元按 ¥7.2 ≈ $1 估算</p>
+      <p class="formula-box">目标输出价格 = 目标输出量 × 统一人民币输出价；统一美元按 ¥6.8 ≈ $1 估算</p>
     </section>
   </main>
   <script src="./script.js"></script>
