@@ -391,7 +391,8 @@ td.highlight { color: var(--success); font-size: 18px; }
   min-width: 0;
 }
 
-.multiplier-label {
+.multiplier-label,
+.speed-label {
   align-self: start;
 }
 
@@ -464,6 +465,18 @@ td.highlight { color: var(--success); font-size: 18px; }
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
 }
 
+.confirm-card {
+  width: min(100%, 560px);
+}
+
+.confirm-text {
+  margin: 0 0 24px;
+  color: #fff7ed;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
 .modal-title-row {
   margin-bottom: 20px;
 }
@@ -492,6 +505,11 @@ body.has-open-modal {
 }
 
 .delete-btn:hover { background: rgba(248, 113, 113, 0.2); }
+
+.confirm-delete-btn {
+  min-height: 48px;
+  padding: 0 18px;
+}
 
 .empty-state {
   grid-column: 1 / -1;

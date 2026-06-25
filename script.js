@@ -55,6 +55,7 @@ let saveTimer = null;
 let importMode = 'merge';
 let editingProviderId = null;
 let editDraft = null;
+let pendingDeleteProviderId = null;
 let officialVisibleBeforeEdit = null;
 let isReadOnlyMode = false;
 
@@ -98,6 +99,11 @@ const editProviderCachePriceLabel = document.querySelector('#editProviderCachePr
 const editProviderMultiplierLabel = document.querySelector('#editProviderMultiplierLabel');
 const closeEditModalBtn = document.querySelector('#closeEditModalBtn');
 const cancelEditProviderBtn = document.querySelector('#cancelEditProviderBtn');
+const deleteProviderModal = document.querySelector('#deleteProviderModal');
+const deleteProviderText = document.querySelector('#deleteProviderText');
+const closeDeleteModalBtn = document.querySelector('#closeDeleteModalBtn');
+const cancelDeleteProviderBtn = document.querySelector('#cancelDeleteProviderBtn');
+const confirmDeleteProviderBtn = document.querySelector('#confirmDeleteProviderBtn');
 const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
 const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
@@ -697,6 +703,37 @@ function closeEditModal() {
   document.body.classList.remove('has-open-modal');
 }
 
+function openDeleteModal(id) {
+  const provider = providers.find(item => item.id === id);
+  if (!provider) return;
+  pendingDeleteProviderId = id;
+  deleteProviderText.textContent = `确认删除「${provider.name}」？删除后不能直接撤回。`;
+  deleteProviderModal.classList.add('is-open');
+  deleteProviderModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('has-open-modal');
+  window.setTimeout(() => confirmDeleteProviderBtn?.focus(), 0);
+}
+
+function closeDeleteModal() {
+  pendingDeleteProviderId = null;
+  deleteProviderModal.classList.remove('is-open');
+  deleteProviderModal.setAttribute('aria-hidden', 'true');
+  if (!editProviderModal.classList.contains('is-open')) {
+    document.body.classList.remove('has-open-modal');
+  }
+}
+
+function confirmDeleteProvider() {
+  if (!pendingDeleteProviderId) return;
+  const provider = providers.find(item => item.id === pendingDeleteProviderId);
+  providers = providers.filter(item => item.id !== pendingDeleteProviderId);
+  if (editingProviderId === pendingDeleteProviderId) clearEditState();
+  closeDeleteModal();
+  saveProviders();
+  render();
+  showMessage(provider ? `已删除「${provider.name}」。` : '已删除渠道。');
+}
+
 function setEditValue(selector, value) {
   const input = document.querySelector(selector);
   if (input) input.value = value ?? '';
@@ -1147,6 +1184,61 @@ document.querySelector('#providerMultiplier')?.addEventListener('input', () => {
   });
 });
 
+function visibleFormControl(element) {
+  if (!element || element.disabled) return false;
+  return Boolean(element.offsetParent || element.getClientRects().length);
+}
+
+function setupRowTabOrder(form, selectors) {
+  form.addEventListener('keydown', event => {
+    if (event.key !== 'Tab') return;
+    const controls = selectors
+      .map(selector => form.querySelector(selector))
+      .filter(visibleFormControl);
+    const currentIndex = controls.indexOf(event.target);
+    if (currentIndex === -1) return;
+    event.preventDefault();
+    const step = event.shiftKey ? -1 : 1;
+    const nextIndex = (currentIndex + step + controls.length) % controls.length;
+    controls[nextIndex]?.focus();
+  });
+}
+
+setupRowTabOrder(providerForm, [
+  '#providerName',
+  '#providerLink',
+  '#providerPricingMode',
+  '#providerCny',
+  '#providerUsd',
+  '#providerActualInput',
+  '#providerActualOutput',
+  '#providerActualCache',
+  '#providerMultiplier',
+  '#providerSpeed',
+  '#providerOfficialInput',
+  '#providerOfficialOutput',
+  '#providerOfficialCache',
+  'button[type="submit"]',
+]);
+
+setupRowTabOrder(editProviderForm, [
+  '#editProviderName',
+  '#editProviderLink',
+  '#editProviderPricingMode',
+  '#editProviderCny',
+  '#editProviderCredit',
+  '#editProviderActualInput',
+  '#editProviderActualOutput',
+  '#editProviderActualCache',
+  '#editProviderMultiplier',
+  '#editProviderSpeed',
+  '#editProviderOfficialInput',
+  '#editProviderOfficialOutput',
+  '#editProviderOfficialCache',
+  '#cancelEditProviderBtn',
+  'button[type="submit"]',
+]);
+
 editProviderPricingMode.addEventListener('change', () => {
   applyEditPricingModeToForm(editProviderPricingMode.value);
 });
@@ -1175,9 +1267,19 @@ cancelEditProviderBtn.addEventListener('click', cancelEditProvider);
 editProviderModal.addEventListener('click', event => {
   if (event.target.closest('[data-close-edit-modal]')) cancelEditProvider();
 });
+closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+cancelDeleteProviderBtn.addEventListener('click', closeDeleteModal);
+confirmDeleteProviderBtn.addEventListener('click', confirmDeleteProvider);
+deleteProviderModal.addEventListener('click', event => {
+  if (event.target.closest('[data-close-delete-modal]')) closeDeleteModal();
+});
 window.addEventListener('keydown', event => {
   if (event.key === 'Escape' && editProviderModal.classList.contains('is-open')) {
     cancelEditProvider();
+    return;
+  }
+  if (event.key === 'Escape' && deleteProviderModal.classList.contains('is-open')) {
+    closeDeleteModal();
   }
 });
 
@@ -1238,12 +1340,7 @@ rowsEl.addEventListener('click', event => {
 
   const deleteButton = event.target.closest('.delete-btn');
   if (!deleteButton) return;
-  const provider = providers.find(item => item.id === deleteButton.dataset.id);
-  providers = providers.filter(item => item.id !== deleteButton.dataset.id);
-  if (editingProviderId === deleteButton.dataset.id) clearEditState();
-  saveProviders();
-  render();
-  showMessage(provider ? `已删除「${provider.name}」。` : '已删除渠道。');
+  openDeleteModal(deleteButton.dataset.id);
 });
 
 function applyPricingModeToForm(mode) {
