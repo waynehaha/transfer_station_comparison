@@ -367,9 +367,18 @@ td.highlight { color: var(--success); font-size: 18px; }
 
 .provider-form {
   display: grid;
-  grid-template-columns: repeat(6, minmax(144px, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 14px;
   align-items: start;
+}
+
+.provider-form > label,
+.provider-form .price-pair {
+  grid-column: span 2;
+}
+
+.provider-form > .wide-form-field {
+  grid-column: span 3;
 }
 
 .provider-form label {
@@ -388,7 +397,7 @@ td.highlight { color: var(--success); font-size: 18px; }
 }
 
 .provider-form .input-price-pair {
-  grid-column: 1;
+  grid-column: 1 / span 2;
 }
 
 .provider-form .price-pair label {
@@ -526,6 +535,12 @@ body.has-open-modal {
 
 @media (max-width: 1080px) {
   .provider-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .provider-form > label,
+  .provider-form .price-pair,
+  .provider-form > .wide-form-field,
+  .provider-form .input-price-pair {
+    grid-column: auto;
+  }
   .primary-btn { grid-column: 1 / -1; justify-self: stretch; }
 }
 
