@@ -69,10 +69,10 @@ h1, h2, p { margin-top: 0; }
 h1 {
   width: 100%;
   max-width: none;
-  margin-bottom: 18px;
-  font-size: clamp(40px, 4.8vw, 82px);
-  line-height: 1.04;
-  letter-spacing: -0.06em;
+  margin-bottom: 16px;
+  font-size: clamp(34px, 4.1vw, 68px);
+  line-height: 1.08;
+  letter-spacing: -0.052em;
   text-wrap: balance;
 }
 
@@ -83,7 +83,7 @@ h1 {
 
 h2 {
   margin-bottom: 0;
-  font-size: clamp(24px, 3vw, 34px);
+  font-size: clamp(22px, 2.5vw, 30px);
   letter-spacing: -0.03em;
 }
 
@@ -308,7 +308,7 @@ table:has(#priceHeadRow[data-official-visible="true"]) {
 }
 
 th, td {
-  padding: 14px 12px;
+  padding: 13px 11px;
   text-align: left;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
@@ -323,14 +323,15 @@ th {
 
 td {
   color: #fff7ed;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 650;
 }
 
 tr:last-child td { border-bottom: 0; }
 
 td.muted { color: var(--muted); font-weight: 600; }
 
-td.highlight { color: var(--success); font-size: 18px; }
+td.highlight { color: var(--success); font-size: 17px; }
 
 .formula { color: var(--muted); line-height: 1.75; }
 .formula h2 { color: var(--text); margin-bottom: 12px; }
@@ -1658,7 +1659,7 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   color: #fffaf0;
 }
 
-/* 手机端表格重排：从横向大表改成一条渠道一张卡片，避免微信内置浏览器里被裁切和左右拖动 */
+/* 手机端保持横向表格：只固定左侧名称列，保留对比感 */
 @media (max-width: 640px) {
   body {
     background:
@@ -1706,13 +1707,13 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
 
   h1 {
     margin-bottom: 12px;
-    font-size: clamp(34px, 11.5vw, 46px);
-    line-height: 1.08;
-    letter-spacing: -0.055em;
+    font-size: clamp(30px, 9.4vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.048em;
   }
 
   h2 {
-    font-size: clamp(26px, 8vw, 34px);
+    font-size: clamp(23px, 6.8vw, 30px);
     line-height: 1.12;
   }
 
@@ -1802,52 +1803,52 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   }
 
   .table-wrap {
-    overflow: visible;
-    border: 0;
-    border-radius: 0;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    -webkit-overflow-scrolling: touch;
   }
 
   table,
   table:has(#priceHeadRow[data-official-visible="true"]) {
-    display: block;
-    width: 100%;
-    min-width: 0;
+    display: table;
+    width: max-content;
+    min-width: 1220px;
   }
 
   thead {
-    display: block;
+    display: table-header-group;
   }
 
   #priceHeadRow {
-    display: grid;
-    grid-template-columns: minmax(112px, 0.82fr) minmax(150px, 1fr);
-    gap: 10px;
-    margin-bottom: 12px;
+    display: table-row;
+    margin-bottom: 0;
   }
 
   #priceHeadRow th {
-    display: none;
-    padding: 0;
-    border: 0;
+    display: table-cell;
+    min-width: 92px;
+    padding: 14px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
   }
 
   #priceHeadRow .output-condition-head,
   #priceHeadRow .target-condition-head {
-    display: flex;
-    min-width: 0;
-    width: auto;
+    display: table-cell;
+    min-width: 150px;
+    width: 150px;
     position: static;
     background: transparent;
   }
 
   #priceHeadRow .output-condition-head .head-inline-control,
   #priceHeadRow .target-condition-head .head-stacked-control {
-    width: 100%;
-    min-height: 68px;
+    min-height: 52px;
     justify-content: center;
     border: 1px solid rgba(249, 115, 22, 0.35);
-    border-radius: 18px;
-    padding: 10px;
+    border-radius: 14px;
+    padding: 7px;
     background: rgba(0, 0, 0, 0.2);
   }
 
@@ -1859,9 +1860,9 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
 
   #priceHeadRow .output-condition-head .head-inline-control {
     display: grid;
-    grid-template-columns: auto minmax(64px, 1fr);
+    grid-template-columns: auto minmax(52px, 1fr);
     align-items: center;
-    gap: 6px 8px;
+    gap: 5px 6px;
   }
 
   #priceHeadRow .output-condition-head .head-inline-control > span:last-child {
@@ -1873,14 +1874,14 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   #priceHeadRow .output-condition-head .head-inline-control > label,
   #priceHeadRow .output-condition-head .head-inline-control > span {
     min-height: auto;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .head-money-input,
   .head-stacked-control select {
     width: 100%;
-    min-height: 42px;
-    border-radius: 14px;
+    min-height: 36px;
+    border-radius: 12px;
   }
 
   body.is-readonly .head-money-input,
@@ -1890,7 +1891,7 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   }
 
   .head-money-input input {
-    font-size: 18px;
+    font-size: 15px;
   }
 
   #priceHeadRow .target-condition-head .head-stacked-control {
@@ -1904,18 +1905,16 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
 
   tbody,
   #priceRows {
-    display: grid;
-    gap: 12px;
+    display: table-row-group;
   }
 
   #priceRows tr,
   #priceRows tr.is-editing {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    background: rgba(0, 0, 0, 0.21);
+    display: table-row;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     box-shadow: none;
   }
 
@@ -1927,47 +1926,64 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   .table-wrap.has-fixed-column-overlap #priceRows td,
   .table-wrap.has-horizontal-overflow #priceRows td,
   .table-wrap.is-horizontal-scrolled #priceRows td {
-    position: static !important;
+    position: relative !important;
     right: auto !important;
     z-index: auto !important;
-    display: flex;
-    min-width: 0 !important;
+    display: table-cell;
+    min-width: 92px !important;
     width: auto !important;
-    min-height: 68px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 7px;
-    padding: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    min-height: 0;
+    padding: 13px 10px;
+    border-bottom: 1px solid var(--border);
     background: transparent !important;
     box-shadow: none !important;
+    font-size: 14px;
+    white-space: nowrap;
   }
 
   #priceRows td::before {
-    content: attr(data-label);
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 900;
-    line-height: 1.2;
+    content: none;
   }
 
+  #priceHeadRow th:first-child,
   #priceRows .provider-cell {
-    grid-column: 1 / -1;
-    min-height: auto;
-    padding: 15px 14px;
+    position: sticky !important;
+    left: 0;
+    z-index: 12 !important;
+    width: 164px !important;
+    min-width: 164px !important;
+    max-width: 164px;
+    background: #24201f !important;
+    box-shadow: 10px 0 18px rgba(0, 0, 0, 0.22) !important;
   }
 
-  #priceRows .provider-cell::before,
-  #priceRows .actions-cell::before {
-    display: none;
+  body.is-readonly #priceRows .provider-cell,
+  body.is-readonly .table-wrap.has-horizontal-overflow #priceRows .provider-cell,
+  body.is-readonly .table-wrap.is-horizontal-scrolled #priceRows .provider-cell,
+  body.is-readonly .table-wrap.has-fixed-column-overlap #priceRows .provider-cell,
+  .table-wrap.has-fixed-column-overlap #priceRows .provider-cell,
+  .table-wrap.has-horizontal-overflow #priceRows .provider-cell,
+  .table-wrap.is-horizontal-scrolled #priceRows .provider-cell {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 14 !important;
+    width: 164px !important;
+    min-width: 164px !important;
+    max-width: 164px;
+    background: #24201f !important;
+    box-shadow: 10px 0 18px rgba(0, 0, 0, 0.22) !important;
+  }
+
+  #priceHeadRow th:first-child {
+    z-index: 18 !important;
+    background: #24201f;
   }
 
   .provider-name-link,
   .provider-name-value {
     max-width: 100%;
     min-height: auto;
-    font-size: 19px;
+    font-size: 14px;
     line-height: 1.25;
     white-space: normal;
     word-break: break-word;
@@ -1980,21 +1996,15 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   }
 
   #priceRows td.highlight {
-    min-height: 86px;
+    min-height: 0;
     color: var(--success);
-    font-size: clamp(26px, 9vw, 38px);
-    line-height: 1.05;
-    letter-spacing: -0.04em;
-  }
-
-  #priceRows .result-output,
-  #priceRows .price-cost {
-    background: rgba(52, 211, 153, 0.06) !important;
+    font-size: 16px;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
   }
 
   #priceRows .actions-cell {
-    grid-column: 1 / -1;
-    min-height: auto;
+    min-width: 132px !important;
   }
 
   .row-actions,
@@ -2006,11 +2016,12 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   }
 
   .row-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    gap: 8px;
   }
 
   .row-actions:has(.save-btn) {
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -2019,7 +2030,7 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   .price-cost,
   .muted-dash {
     min-height: auto;
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .table-input,
@@ -2041,14 +2052,5 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   .hero-copy,
   .panel {
     padding-inline: 14px;
-  }
-
-  #priceHeadRow {
-    grid-template-columns: 1fr;
-  }
-
-  #priceRows tr,
-  #priceRows tr.is-editing {
-    grid-template-columns: 1fr;
   }
 }

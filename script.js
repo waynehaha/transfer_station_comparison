@@ -323,6 +323,7 @@ async function initializeData() {
   }
   setFormDefaults();
   render();
+  if (tableWrap) tableWrap.scrollLeft = 0;
 }
 
 
