@@ -904,6 +904,10 @@ body.has-open-modal {
   min-height: 42px;
 }
 
+.table-action-group .ghost-btn {
+  font-size: 14px;
+}
+
 .inline-data-actions {
   display: inline-flex;
   flex-wrap: wrap;
@@ -1807,13 +1811,15 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
     border: 1px solid var(--border);
     border-radius: 18px;
     -webkit-overflow-scrolling: touch;
+    scroll-padding-left: 108px;
+    scroll-snap-type: x proximity;
   }
 
   table,
   table:has(#priceHeadRow[data-official-visible="true"]) {
     display: table;
     width: max-content;
-    min-width: 1220px;
+    min-width: 760px;
   }
 
   thead {
@@ -1827,19 +1833,75 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
 
   #priceHeadRow th {
     display: table-cell;
-    min-width: 92px;
-    padding: 14px 10px;
+    min-width: 50px;
+    padding: 12px 3px;
     border-bottom: 1px solid var(--border);
-    font-size: 12px;
+    font-size: 11px;
+    scroll-snap-align: start;
+  }
+
+  #priceHeadRow th:nth-child(2),
+  #priceRows td:nth-child(2) {
+    width: 48px !important;
+    min-width: 48px !important;
+  }
+
+  #priceHeadRow th:nth-child(3),
+  #priceRows td:nth-child(3) {
+    width: 64px !important;
+    min-width: 64px !important;
+  }
+
+  #priceHeadRow th:nth-child(4),
+  #priceRows td:nth-child(4),
+  #priceHeadRow th:nth-child(5),
+  #priceRows td:nth-child(5) {
+    width: 46px !important;
+    min-width: 46px !important;
+  }
+
+  #priceHeadRow th:nth-child(6),
+  #priceRows td:nth-child(6),
+  #priceHeadRow th:nth-child(7),
+  #priceRows td:nth-child(7),
+  #priceHeadRow th:nth-child(8),
+  #priceRows td:nth-child(8) {
+    width: 58px !important;
+    min-width: 58px !important;
+  }
+
+  #priceHeadRow th:nth-child(9),
+  #priceRows td:nth-child(9) {
+    width: 76px !important;
+    min-width: 76px !important;
+  }
+
+  #priceHeadRow th:nth-child(10),
+  #priceRows td:nth-child(10) {
+    width: 92px !important;
+    min-width: 92px !important;
   }
 
   #priceHeadRow .output-condition-head,
   #priceHeadRow .target-condition-head {
     display: table-cell;
-    min-width: 150px;
-    width: 150px;
-    position: static;
-    background: transparent;
+    min-width: 132px;
+    width: 132px;
+    position: static !important;
+    right: auto !important;
+    z-index: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  #priceHeadRow th:last-child {
+    position: static !important;
+    right: auto !important;
+    z-index: auto !important;
+    width: 124px;
+    min-width: 124px;
+    background: transparent !important;
+    box-shadow: none !important;
   }
 
   #priceHeadRow .output-condition-head .head-inline-control,
@@ -1930,15 +1992,16 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
     right: auto !important;
     z-index: auto !important;
     display: table-cell;
-    min-width: 92px !important;
+    min-width: 50px !important;
     width: auto !important;
     min-height: 0;
-    padding: 13px 10px;
+    padding: 12px 3px;
     border-bottom: 1px solid var(--border);
     background: transparent !important;
     box-shadow: none !important;
-    font-size: 14px;
+    font-size: 11px;
     white-space: nowrap;
+    scroll-snap-align: start;
   }
 
   #priceRows td::before {
@@ -1950,11 +2013,11 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
     position: sticky !important;
     left: 0;
     z-index: 12 !important;
-    width: 164px !important;
-    min-width: 164px !important;
-    max-width: 164px;
+    width: 108px !important;
+    min-width: 108px !important;
+    max-width: 108px;
     background: #24201f !important;
-    box-shadow: 10px 0 18px rgba(0, 0, 0, 0.22) !important;
+    box-shadow: 5px 0 10px rgba(0, 0, 0, 0.18) !important;
   }
 
   body.is-readonly #priceRows .provider-cell,
@@ -1967,11 +2030,11 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
     position: sticky !important;
     left: 0 !important;
     z-index: 14 !important;
-    width: 164px !important;
-    min-width: 164px !important;
-    max-width: 164px;
+    width: 108px !important;
+    min-width: 108px !important;
+    max-width: 108px;
     background: #24201f !important;
-    box-shadow: 10px 0 18px rgba(0, 0, 0, 0.22) !important;
+    box-shadow: 5px 0 10px rgba(0, 0, 0, 0.18) !important;
   }
 
   #priceHeadRow th:first-child {
@@ -1983,10 +2046,15 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   .provider-name-value {
     max-width: 100%;
     min-height: auto;
-    font-size: 14px;
-    line-height: 1.25;
+    font-size: 11px;
+    line-height: 1.28;
     white-space: normal;
+    overflow-wrap: anywhere;
     word-break: break-word;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   .provider-name-stack,
@@ -1998,7 +2066,7 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   #priceRows td.highlight {
     min-height: 0;
     color: var(--success);
-    font-size: 16px;
+    font-size: 12px;
     line-height: 1.15;
     letter-spacing: -0.025em;
   }
