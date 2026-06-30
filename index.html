@@ -42,6 +42,14 @@
           </select>
         </label>
         <label>
+          <span>类型标签</span>
+          <select id="providerTag" name="providerTag" class="form-select">
+            <option value="">不设置</option>
+            <option value="normal">普通渠道</option>
+            <option value="official">官方渠道</option>
+          </select>
+        </label>
+        <label class="recharge-field">
           <span>充值金额（人民币）</span>
           <input id="providerCny" name="providerCny" type="number" min="0.01" step="0.01" placeholder="例如：100" required />
         </label>
@@ -105,6 +113,15 @@
           <h2 id="table-title">中转站对比表</h2>
         </div>
         <div class="table-action-group">
+          <label class="type-filter-control">
+            <span class="display-mode-label">类型筛选</span>
+            <select id="providerTypeFilter" class="filter-select" aria-label="按渠道类型筛选">
+              <option value="all">全部渠道</option>
+              <option value="unset">不设置</option>
+              <option value="normal">普通渠道</option>
+              <option value="official">官方渠道</option>
+            </select>
+          </label>
           <div class="display-mode-control">
             <span class="display-mode-label">价格显示</span>
             <div class="display-switch" role="group" aria-label="价格显示方式">
@@ -165,6 +182,14 @@
           </select>
         </label>
         <label>
+          <span>类型标签</span>
+          <select id="editProviderTag" name="providerTag" class="form-select">
+            <option value="">不设置</option>
+            <option value="normal">普通渠道</option>
+            <option value="official">官方渠道</option>
+          </select>
+        </label>
+        <label class="recharge-field">
           <span>充值金额（人民币）</span>
           <input id="editProviderCny" name="providerCny" type="number" min="0.01" step="0.01" required />
         </label>

@@ -8,6 +8,11 @@ const OFFICIAL_PRICE = {
   cachePrice: 0.5,
 };
 const SPEED_OPTIONS = ['快', '中', '慢'];
+const PROVIDER_TAG_OPTIONS = ['normal', 'official'];
+const PROVIDER_TAG_LABELS = {
+  normal: '普通渠道',
+  official: '官方渠道',
+};
 
 const defaultProviders = [
   {
@@ -51,6 +56,7 @@ const defaultProviders = [
 let providers = cloneDefaultProviders();
 let forceShowOfficialPrices = false;
 let priceDisplayMode = 'original';
+let providerTypeFilter = 'all';
 let saveTimer = null;
 let importMode = 'merge';
 let editingProviderId = null;
@@ -69,6 +75,7 @@ const importDataInput = document.querySelector('#importDataInput');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
 const providerSpeed = document.querySelector('#providerSpeed');
+const providerTag = document.querySelector('#providerTag');
 const providerCreditLabel = document.querySelector('#providerCreditLabel');
 const providerActualInput = providerForm.querySelector('#providerActualInput');
 const providerActualOutput = providerForm.querySelector('#providerActualOutput');
@@ -85,6 +92,7 @@ const editProviderModal = document.querySelector('#editProviderModal');
 const editProviderForm = document.querySelector('#editProviderForm');
 const editProviderPricingMode = document.querySelector('#editProviderPricingMode');
 const editProviderSpeed = document.querySelector('#editProviderSpeed');
+const editProviderTag = document.querySelector('#editProviderTag');
 const editProviderCreditLabel = document.querySelector('#editProviderCreditLabel');
 const editProviderActualInput = editProviderForm.querySelector('#editProviderActualInput');
 const editProviderActualOutput = editProviderForm.querySelector('#editProviderActualOutput');
@@ -108,6 +116,7 @@ const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
 const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
 const displayModeButtons = document.querySelectorAll('.display-mode-btn');
+const providerTypeFilterSelect = document.querySelector('#providerTypeFilter');
 
 function loadProviders() {
   return cloneDefaultProviders();
@@ -152,6 +161,7 @@ function providerSignature(list) {
     name: item.name,
     siteUrl: item.siteUrl || '',
     perceivedSpeed: normalizePerceivedSpeed(item.perceivedSpeed ?? item.speed),
+    tag: normalizeProviderTag(item.tag ?? item.type),
     rechargeCny: Number(item.rechargeCny),
     usdCredit: Number(item.usdCredit || 0),
     cnyCredit: Number(item.cnyCredit || 0),
@@ -178,6 +188,18 @@ function normalizePerceivedSpeed(value) {
   return SPEED_OPTIONS.includes(text) ? text : '';
 }
 
+function normalizeProviderTag(value) {
+  const text = String(value || '').trim();
+  if (text === '普通渠道') return 'normal';
+  if (text === '官方渠道') return 'official';
+  return PROVIDER_TAG_OPTIONS.includes(text) ? text : '';
+}
+
+function providerTagLabel(provider) {
+  const tag = normalizeProviderTag(provider?.tag ?? provider?.type);
+  return tag ? PROVIDER_TAG_LABELS[tag] : '';
+}
+
 function speedDisplay(provider) {
   return normalizePerceivedSpeed(provider?.perceivedSpeed ?? provider?.speed) || '-';
 }
@@ -200,6 +222,7 @@ function normalizeProvider(provider) {
   const name = String(provider?.name || '').trim();
   const siteUrl = normalizeProviderUrl(provider?.siteUrl ?? provider?.link ?? provider?.url ?? provider?.href);
   const perceivedSpeed = normalizePerceivedSpeed(provider?.perceivedSpeed ?? provider?.speed);
+  const tag = normalizeProviderTag(provider?.tag ?? provider?.type);
   const rechargeCny = Number(provider?.rechargeCny);
 
   if (!name || rechargeCny <= 0) return null;
@@ -218,6 +241,7 @@ function normalizeProvider(provider) {
       name,
       siteUrl,
       perceivedSpeed,
+      tag,
       rechargeCny,
       cnyCredit,
       cnyInputPrice,
@@ -247,6 +271,7 @@ function normalizeProvider(provider) {
     name,
     siteUrl,
     perceivedSpeed,
+    tag,
     rechargeCny,
     usdCredit,
     officialInputPrice,
@@ -581,10 +606,10 @@ function targetOutputPriceLabel() {
   return `${targetTokenLabel()}输出价格`;
 }
 
-function isOfficialPriceSameForAll() {
-  if (providers.length <= 1) return true;
-  const first = providers[0];
-  return providers.every(provider =>
+function isOfficialPriceSameForAll(providerList = providers) {
+  if (providerList.length <= 1) return true;
+  const first = providerList[0];
+  return providerList.every(provider =>
     providerMode(provider) === providerMode(first) &&
     originalInputPrice(provider) === originalInputPrice(first) &&
     originalOutputPrice(provider) === originalOutputPrice(first) &&
@@ -596,8 +621,20 @@ function shouldShowOfficialColumns() {
   return forceShowOfficialPrices;
 }
 
+function providerMatchesTypeFilter(provider) {
+  const tag = normalizeProviderTag(provider?.tag ?? provider?.type);
+  if (providerTypeFilter === 'unset') return tag === '';
+  if (providerTypeFilter === 'normal') return tag === 'normal';
+  if (providerTypeFilter === 'official') return tag === 'official';
+  return true;
+}
+
+function filteredProviders() {
+  return providers.filter(providerMatchesTypeFilter);
+}
+
 function rankedProviders(amount) {
-  return providers
+  return filteredProviders()
     .map(provider => ({
       ...provider,
       originalInputPrice: originalInputPrice(provider),
@@ -635,12 +672,16 @@ function providerNameDisplay(provider) {
   const cnyBadge = providerMode(provider) === 'cny'
     ? '<span class="mode-pill mode-cny provider-mode-badge">人民币直扣</span>'
     : '';
+  const tagLabel = providerTagLabel(provider);
+  const tagBadge = tagLabel
+    ? `<span class="mode-pill mode-official provider-mode-badge">${escapeHtml(tagLabel)}</span>`
+    : '';
   const safeName = escapeHtml(provider.name);
   const safeUrl = normalizeProviderUrl(provider.siteUrl);
   const nameContent = safeUrl
     ? `<a class="provider-name-link provider-name-value" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">${safeName}</a>`
     : tableText(provider.name, 'provider-name-value');
-  return `<div class="provider-name-stack">${nameContent}${cnyBadge}</div>`;
+  return `<div class="provider-name-stack">${nameContent}${cnyBadge}${tagBadge}</div>`;
 }
 
 function rawPriceValue(provider, kind) {
@@ -679,6 +720,7 @@ function saveEditProvider() {
     name: formData.get('providerName'),
     siteUrl: formData.get('providerLink'),
     perceivedSpeed: formData.get('providerSpeed'),
+    tag: formData.get('providerTag'),
     rechargeCny: formData.get('providerCny'),
   };
   const normalized = normalizeProvider(pricingMode === 'cny'
@@ -775,6 +817,7 @@ function fillEditProviderForm(provider) {
   setEditValue('#editProviderLink', provider.siteUrl || '');
   editProviderPricingMode.value = mode;
   editProviderSpeed.value = normalizePerceivedSpeed(provider.perceivedSpeed ?? provider.speed);
+  editProviderTag.value = normalizeProviderTag(provider.tag ?? provider.type);
   setEditValue('#editProviderCny', provider.rechargeCny);
   setEditValue('#editProviderCredit', creditAmount(provider));
   setEditValue('#editProviderOfficialInput', rawPriceValue(provider, 'input'));
@@ -882,6 +925,11 @@ function renderEmptyState() {
   scheduleTableOverflowCheck();
 }
 
+function renderTypeFilterControls() {
+  if (!providerTypeFilterSelect) return;
+  providerTypeFilterSelect.value = providerTypeFilter;
+}
+
 function renderDisplayModeControls() {
   displayModeButtons.forEach(button => {
     const isActive = button.dataset.displayMode === priceDisplayMode;
@@ -911,9 +959,11 @@ function renderOfficialControls(showOfficial, sameOfficialPrice) {
 
 function render(options = {}) {
   const amount = getRechargeAmount();
-  const sameOfficialPrice = isOfficialPriceSameForAll();
+  const visibleProviders = filteredProviders();
+  const sameOfficialPrice = isOfficialPriceSameForAll(visibleProviders);
   const showOfficial = shouldShowOfficialColumns();
   setReadOnlyMode(isReadOnlyMode);
+  renderTypeFilterControls();
   renderDisplayModeControls();
   renderOfficialControls(showOfficial, sameOfficialPrice);
 
@@ -924,6 +974,13 @@ function render(options = {}) {
 
   const ranked = rankedProviders(amount);
 
+  if (!ranked.length) {
+    if (!options.preserveTableHead) renderTableHead(showOfficial);
+    const columnCount = (showOfficial ? 13 : 10) + (isReadOnlyMode ? 0 : 1);
+    rowsEl.innerHTML = `<tr><td colspan="${columnCount}" class="muted">没有符合当前筛选的渠道。</td></tr>`;
+    scheduleTableOverflowCheck();
+    return;
+  }
 
   if (!options.preserveTableHead) {
     renderTableHead(showOfficial);
@@ -1017,6 +1074,7 @@ function coreProviderData(provider) {
     name: String(provider.name || '').trim(),
     siteUrl: normalizeProviderUrl(provider.siteUrl),
     perceivedSpeed: normalizePerceivedSpeed(provider.perceivedSpeed ?? provider.speed),
+    tag: normalizeProviderTag(provider.tag ?? provider.type),
     rechargeCny: Number(provider.rechargeCny),
     usdCredit: Number(provider.usdCredit || 0),
     cnyCredit: Number(provider.cnyCredit || 0),
@@ -1115,6 +1173,7 @@ async function replaceProvidersFromFile(file) {
   await persistProviders();
   forceShowOfficialPrices = false;
   priceDisplayMode = 'original';
+  providerTypeFilter = 'all';
   clearEditState({ restoreOfficial: false });
   render();
   showMessage(`已覆盖导入 ${providers.length} 个渠道，并保存到项目文件。`);
@@ -1181,12 +1240,20 @@ restoreDefaultsBtn.addEventListener('click', () => {
   clearEditState({ restoreOfficial: false });
   forceShowOfficialPrices = false;
   priceDisplayMode = 'original';
+  providerTypeFilter = 'all';
   saveProviders();
   render();
   showMessage('已恢复默认 3 个示例渠道。');
 });
 officialToggleBtn.addEventListener('click', () => {
   forceShowOfficialPrices = !forceShowOfficialPrices;
+  render();
+});
+
+providerTypeFilterSelect?.addEventListener('change', () => {
+  const nextFilter = providerTypeFilterSelect.value;
+  if (!['all', 'unset', 'normal', 'official'].includes(nextFilter)) return;
+  providerTypeFilter = nextFilter;
   render();
 });
 
@@ -1241,6 +1308,7 @@ setupRowTabOrder(providerForm, [
   '#providerName',
   '#providerLink',
   '#providerPricingMode',
+  '#providerTag',
   '#providerCny',
   '#providerUsd',
   '#providerActualInput',
@@ -1258,6 +1326,7 @@ setupRowTabOrder(editProviderForm, [
   '#editProviderName',
   '#editProviderLink',
   '#editProviderPricingMode',
+  '#editProviderTag',
   '#editProviderCny',
   '#editProviderCredit',
   '#editProviderActualInput',
@@ -1327,6 +1396,7 @@ providerForm.addEventListener('submit', event => {
     name: formData.get('providerName'),
     siteUrl: formData.get('providerLink'),
     perceivedSpeed: formData.get('providerSpeed'),
+    tag: formData.get('providerTag'),
     rechargeCny: formData.get('providerCny'),
   };
 
@@ -1423,6 +1493,7 @@ function applyEditPricingModeToForm(mode) {
 function setFormDefaults() {
   providerPricingMode.value = 'usd';
   providerSpeed.value = '';
+  providerTag.value = '';
   document.querySelector('#providerOfficialInput').value = OFFICIAL_PRICE.inputPrice;
   document.querySelector('#providerOfficialOutput').value = OFFICIAL_PRICE.outputPrice;
   document.querySelector('#providerOfficialCache').value = OFFICIAL_PRICE.cachePrice;
