@@ -58,6 +58,8 @@ const exportDataBtn = document.querySelector('#exportDataBtn');
 const importDataBtn = document.querySelector('#importDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
 const addProviderModal = document.querySelector('#addProviderModal');
+const openWechatModalBtn = document.querySelector('#openWechatModalBtn');
+const wechatQrModal = document.querySelector('#wechatQrModal');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
 const providerSpeed = document.querySelector('#providerSpeed');
@@ -76,6 +78,7 @@ const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel
 const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel');
 const closeAddModalBtn = document.querySelector('#closeAddModalBtn');
 const cancelAddProviderBtn = document.querySelector('#cancelAddProviderBtn');
+const closeWechatModalBtn = document.querySelector('#closeWechatModalBtn');
 const editProviderModal = document.querySelector('#editProviderModal');
 const editProviderForm = document.querySelector('#editProviderForm');
 const editProviderPricingMode = document.querySelector('#editProviderPricingMode');
@@ -512,7 +515,7 @@ function openEditModal() {
 function closeEditModal() {
   editProviderModal.classList.remove('is-open');
   editProviderModal.setAttribute('aria-hidden', 'true');
-  if (!addProviderModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
+  if (!addProviderModal.classList.contains('is-open') && !wechatQrModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
     document.body.classList.remove('has-open-modal');
   }
 }
@@ -530,7 +533,22 @@ function openAddModal() {
 function closeAddModal() {
   addProviderModal.classList.remove('is-open');
   addProviderModal.setAttribute('aria-hidden', 'true');
-  if (!editProviderModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
+  if (!editProviderModal.classList.contains('is-open') && !wechatQrModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
+    document.body.classList.remove('has-open-modal');
+  }
+}
+
+function openWechatModal() {
+  wechatQrModal.classList.add('is-open');
+  wechatQrModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('has-open-modal');
+  window.setTimeout(() => closeWechatModalBtn?.focus(), 0);
+}
+
+function closeWechatModal() {
+  wechatQrModal.classList.remove('is-open');
+  wechatQrModal.setAttribute('aria-hidden', 'true');
+  if (!addProviderModal.classList.contains('is-open') && !editProviderModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
     document.body.classList.remove('has-open-modal');
   }
 }
@@ -550,7 +568,7 @@ function closeDeleteModal() {
   pendingDeleteProviderId = null;
   deleteProviderModal.classList.remove('is-open');
   deleteProviderModal.setAttribute('aria-hidden', 'true');
-  if (!addProviderModal.classList.contains('is-open') && !editProviderModal.classList.contains('is-open')) {
+  if (!addProviderModal.classList.contains('is-open') && !wechatQrModal.classList.contains('is-open') && !editProviderModal.classList.contains('is-open')) {
     document.body.classList.remove('has-open-modal');
   }
 }
@@ -914,6 +932,7 @@ displayModeButtons.forEach(button => {
 });
 
 openAddProviderBtn?.addEventListener('click', openAddModal);
+openWechatModalBtn?.addEventListener('click', openWechatModal);
 
 providerPricingMode.addEventListener('change', () => {
   applyPricingModeToForm(providerPricingMode.value);
@@ -1023,6 +1042,10 @@ cancelAddProviderBtn.addEventListener('click', closeAddModal);
 addProviderModal.addEventListener('click', event => {
   if (event.target.closest('[data-close-add-modal]')) closeAddModal();
 });
+closeWechatModalBtn.addEventListener('click', closeWechatModal);
+wechatQrModal.addEventListener('click', event => {
+  if (event.target.closest('[data-close-wechat-modal]')) closeWechatModal();
+});
 closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
 cancelDeleteProviderBtn.addEventListener('click', closeDeleteModal);
 confirmDeleteProviderBtn.addEventListener('click', confirmDeleteProvider);
@@ -1032,6 +1055,10 @@ deleteProviderModal.addEventListener('click', event => {
 window.addEventListener('keydown', event => {
   if (event.key === 'Escape' && addProviderModal.classList.contains('is-open')) {
     closeAddModal();
+    return;
+  }
+  if (event.key === 'Escape' && wechatQrModal.classList.contains('is-open')) {
+    closeWechatModal();
     return;
   }
   if (event.key === 'Escape' && editProviderModal.classList.contains('is-open')) {

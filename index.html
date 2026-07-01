@@ -165,7 +165,32 @@
       <p>默认展示每个渠道自己的原始报价。切到统一人民币或统一美元后，表格会把不同计价方式换成同一种货币，方便横向比较。</p>
       <p class="formula-box">目标输出价格 = 目标输出量 × 统一人民币输出价；统一美元按 ¥6.8 ≈ $1 估算</p>
     </section>
+
+    <section class="contact-author panel" aria-labelledby="contact-author-title">
+      <div>
+        <p class="eyebrow">Contact</p>
+        <h2 id="contact-author-title">联系作者</h2>
+        <p>微信扫码联系</p>
+      </div>
+      <button id="openWechatModalBtn" type="button" class="wechat-qr-button" aria-label="放大查看作者微信二维码">
+        <img src="./assets/wechat-qr.png" alt="作者微信二维码" loading="lazy" />
+      </button>
+    </section>
   </main>
+  <div id="wechatQrModal" class="modal-shell" aria-hidden="true">
+    <div class="modal-backdrop" data-close-wechat-modal></div>
+    <section class="modal-card wechat-modal-card" role="dialog" aria-modal="true" aria-labelledby="wechatQrTitle">
+      <div class="section-title-row modal-title-row">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2 id="wechatQrTitle">联系作者</h2>
+        </div>
+        <button id="closeWechatModalBtn" type="button" class="ghost-btn" aria-label="关闭微信二维码弹框">关闭</button>
+      </div>
+      <img src="./assets/wechat-qr.png" alt="作者微信二维码大图" />
+      <p>微信扫码联系</p>
+    </section>
+  </div>
   <div id="editProviderModal" class="modal-shell" aria-hidden="true">
     <div class="modal-backdrop" data-close-edit-modal></div>
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editProviderTitle">
