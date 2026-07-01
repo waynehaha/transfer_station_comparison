@@ -53,9 +53,11 @@ const rowsEl = document.querySelector('#priceRows');
 const tableHeadRow = document.querySelector('#priceHeadRow');
 const tableWrap = document.querySelector('.table-wrap');
 const restoreDefaultsBtn = document.querySelector('#restoreDefaultsBtn');
+const openAddProviderBtn = document.querySelector('#openAddProviderBtn');
 const exportDataBtn = document.querySelector('#exportDataBtn');
 const importDataBtn = document.querySelector('#importDataBtn');
 const importDataInput = document.querySelector('#importDataInput');
+const addProviderModal = document.querySelector('#addProviderModal');
 const providerForm = document.querySelector('#providerForm');
 const providerPricingMode = document.querySelector('#providerPricingMode');
 const providerSpeed = document.querySelector('#providerSpeed');
@@ -72,6 +74,8 @@ const providerInputPriceLabel = document.querySelector('#providerInputPriceLabel
 const providerOutputPriceLabel = document.querySelector('#providerOutputPriceLabel');
 const providerCachePriceLabel = document.querySelector('#providerCachePriceLabel');
 const providerMultiplierLabel = document.querySelector('#providerMultiplierLabel');
+const closeAddModalBtn = document.querySelector('#closeAddModalBtn');
+const cancelAddProviderBtn = document.querySelector('#cancelAddProviderBtn');
 const editProviderModal = document.querySelector('#editProviderModal');
 const editProviderForm = document.querySelector('#editProviderForm');
 const editProviderPricingMode = document.querySelector('#editProviderPricingMode');
@@ -508,7 +512,27 @@ function openEditModal() {
 function closeEditModal() {
   editProviderModal.classList.remove('is-open');
   editProviderModal.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('has-open-modal');
+  if (!addProviderModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
+    document.body.classList.remove('has-open-modal');
+  }
+}
+
+function openAddModal() {
+  if (!ensureWritableMode()) return;
+  providerForm.reset();
+  setFormDefaults();
+  addProviderModal.classList.add('is-open');
+  addProviderModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('has-open-modal');
+  window.setTimeout(() => document.querySelector('#providerName')?.focus(), 0);
+}
+
+function closeAddModal() {
+  addProviderModal.classList.remove('is-open');
+  addProviderModal.setAttribute('aria-hidden', 'true');
+  if (!editProviderModal.classList.contains('is-open') && !deleteProviderModal.classList.contains('is-open')) {
+    document.body.classList.remove('has-open-modal');
+  }
 }
 
 function openDeleteModal(id) {
@@ -526,7 +550,7 @@ function closeDeleteModal() {
   pendingDeleteProviderId = null;
   deleteProviderModal.classList.remove('is-open');
   deleteProviderModal.setAttribute('aria-hidden', 'true');
-  if (!editProviderModal.classList.contains('is-open')) {
+  if (!addProviderModal.classList.contains('is-open') && !editProviderModal.classList.contains('is-open')) {
     document.body.classList.remove('has-open-modal');
   }
 }
@@ -889,6 +913,8 @@ displayModeButtons.forEach(button => {
   });
 });
 
+openAddProviderBtn?.addEventListener('click', openAddModal);
+
 providerPricingMode.addEventListener('change', () => {
   applyPricingModeToForm(providerPricingMode.value);
 });
@@ -992,6 +1018,11 @@ cancelEditProviderBtn.addEventListener('click', cancelEditProvider);
 editProviderModal.addEventListener('click', event => {
   if (event.target.closest('[data-close-edit-modal]')) cancelEditProvider();
 });
+closeAddModalBtn.addEventListener('click', closeAddModal);
+cancelAddProviderBtn.addEventListener('click', closeAddModal);
+addProviderModal.addEventListener('click', event => {
+  if (event.target.closest('[data-close-add-modal]')) closeAddModal();
+});
 closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
 cancelDeleteProviderBtn.addEventListener('click', closeDeleteModal);
 confirmDeleteProviderBtn.addEventListener('click', confirmDeleteProvider);
@@ -999,6 +1030,10 @@ deleteProviderModal.addEventListener('click', event => {
   if (event.target.closest('[data-close-delete-modal]')) closeDeleteModal();
 });
 window.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && addProviderModal.classList.contains('is-open')) {
+    closeAddModal();
+    return;
+  }
   if (event.key === 'Escape' && editProviderModal.classList.contains('is-open')) {
     cancelEditProvider();
     return;
@@ -1051,6 +1086,7 @@ providerForm.addEventListener('submit', event => {
   saveProviders();
   providerForm.reset();
   setFormDefaults();
+  closeAddModal();
   render();
   showMessage(`已新增「${nextProvider.name}」。`);
 });

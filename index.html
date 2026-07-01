@@ -17,15 +17,66 @@
       </div>
     </section>
 
-    <section class="panel editor-panel" aria-labelledby="editor-title">
-      <div class="section-title-row">
+    <input id="importDataInput" type="file" accept="application/json,.json" hidden />
+
+    <section class="panel" aria-labelledby="table-title">
+      <div class="section-title-row details-title-row">
         <div>
-          <p class="eyebrow">Manage</p>
-          <h2 id="editor-title">新增渠道</h2>
+          <p class="eyebrow">Details</p>
+          <div class="title-inline-actions">
+            <h2 id="table-title">中转站对比表</h2>
+            <button id="openAddProviderBtn" type="button" class="primary-btn add-provider-btn">+ 新增渠道</button>
+          </div>
         </div>
-        <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
+        <div class="table-action-group">
+          <label class="type-filter-control">
+            <span class="display-mode-label">类型筛选</span>
+            <select id="providerTypeFilter" class="filter-select" aria-label="按渠道类型筛选">
+              <option value="all">全部渠道</option>
+              <option value="unset">不设置</option>
+              <option value="normal">普通渠道</option>
+              <option value="official">官方渠道</option>
+            </select>
+          </label>
+          <div class="display-mode-control">
+            <span class="display-mode-label">价格显示</span>
+            <div class="display-switch" role="group" aria-label="价格显示方式">
+              <button type="button" class="display-mode-btn is-active" data-display-mode="original" aria-pressed="true">原始价格</button>
+              <button type="button" class="display-mode-btn" data-display-mode="cny" aria-pressed="false">统一人民币</button>
+              <button type="button" class="display-mode-btn" data-display-mode="usd" aria-pressed="false">统一美元</button>
+            </div>
+          </div>
+          <div class="inline-data-actions" aria-label="数据导入导出">
+            <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
+            <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
+            <button id="restoreDefaultsBtn" type="button" class="ghost-btn">恢复默认示例</button>
+          </div>
+          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。" data-tooltip="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。">?</span>
+          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
+        </div>
       </div>
-      <form id="providerForm" class="provider-form">
+      <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr id="priceHeadRow"></tr>
+          </thead>
+          <tbody id="priceRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="addProviderModal" class="modal-shell" aria-hidden="true">
+      <div class="modal-backdrop" data-close-add-modal></div>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+        <div class="section-title-row modal-title-row">
+          <div>
+            <p class="eyebrow">Manage</p>
+            <h2 id="editor-title">新增渠道</h2>
+          </div>
+          <button id="closeAddModalBtn" type="button" class="ghost-btn" aria-label="关闭新增弹框">关闭</button>
+        </div>
+        <form id="providerForm" class="provider-form">
         <label class="wide-form-field">
           <span>渠道名称</span>
           <input id="providerName" name="providerName" type="text" placeholder="例如：某某 Pro" required />
@@ -100,53 +151,13 @@
             <option value="慢">慢</option>
           </select>
         </label>
-        <button type="submit" class="primary-btn">添加到对比</button>
-      </form>
-      <input id="importDataInput" type="file" accept="application/json,.json" hidden />
-      <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
-    </section>
-
-    <section class="panel" aria-labelledby="table-title">
-      <div class="section-title-row details-title-row">
-        <div>
-          <p class="eyebrow">Details</p>
-          <h2 id="table-title">中转站对比表</h2>
+        <div class="modal-actions">
+          <button id="cancelAddProviderBtn" type="button" class="ghost-btn">取消</button>
+          <button type="submit" class="primary-btn">添加到对比</button>
         </div>
-        <div class="table-action-group">
-          <label class="type-filter-control">
-            <span class="display-mode-label">类型筛选</span>
-            <select id="providerTypeFilter" class="filter-select" aria-label="按渠道类型筛选">
-              <option value="all">全部渠道</option>
-              <option value="unset">不设置</option>
-              <option value="normal">普通渠道</option>
-              <option value="official">官方渠道</option>
-            </select>
-          </label>
-          <div class="display-mode-control">
-            <span class="display-mode-label">价格显示</span>
-            <div class="display-switch" role="group" aria-label="价格显示方式">
-              <button type="button" class="display-mode-btn is-active" data-display-mode="original" aria-pressed="true">原始价格</button>
-              <button type="button" class="display-mode-btn" data-display-mode="cny" aria-pressed="false">统一人民币</button>
-              <button type="button" class="display-mode-btn" data-display-mode="usd" aria-pressed="false">统一美元</button>
-            </div>
-          </div>
-          <div class="inline-data-actions" aria-label="数据导入导出">
-            <button id="exportDataBtn" type="button" class="ghost-btn">导出数据</button>
-            <button id="importDataBtn" type="button" class="ghost-btn">导入数据</button>
-          </div>
-          <span id="officialVisibilityHint" class="hint-icon" role="img" tabindex="0" aria-label="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。" data-tooltip="默认显示各渠道自己的报价。需要横向比较时，可切到统一人民币或统一美元；需要查看官方基础价格时，可点击“显示官方价”。">?</span>
-          <button id="officialToggleBtn" type="button" class="ghost-btn" aria-pressed="false">显示官方价</button>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr id="priceHeadRow"></tr>
-          </thead>
-          <tbody id="priceRows"></tbody>
-        </table>
-      </div>
-    </section>
+        </form>
+      </section>
+    </div>
 
     <section class="formula panel" aria-labelledby="formula-title">
       <p class="eyebrow">Formula</p>

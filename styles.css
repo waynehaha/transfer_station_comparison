@@ -680,6 +680,20 @@ body.has-open-modal {
   margin-bottom: 12px;
 }
 
+.title-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.add-provider-btn {
+  grid-column: auto;
+  min-height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
 .details-data-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1530,7 +1544,7 @@ body {
 }
 
 /* 线上只读展示：隐藏维护入口，只保留查看和换算 */
-body.is-readonly .editor-panel,
+body.is-readonly .add-provider-btn,
 body.is-readonly .inline-data-actions {
   display: none;
 }
