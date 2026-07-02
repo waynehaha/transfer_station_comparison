@@ -773,6 +773,7 @@ body.has-open-modal {
 .add-provider-btn {
   grid-column: auto;
   min-height: 42px;
+  border-color: rgba(251, 146, 60, 0.62);
   padding: 0 18px;
   font-size: 14px;
 }
@@ -1082,9 +1083,23 @@ body.has-open-modal {
 }
 
 .type-filter-control {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+.type-filter-control::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid rgba(255, 237, 213, 0.86);
+  border-bottom: 2px solid rgba(255, 237, 213, 0.86);
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
 }
 
 .display-mode-label {
@@ -1095,6 +1110,7 @@ body.has-open-modal {
 }
 
 .filter-select {
+  appearance: none;
   min-height: 38px;
   border: 1px solid rgba(249, 115, 22, 0.42);
   border-radius: 999px;
@@ -1227,6 +1243,15 @@ tr.is-editing > td:first-child::before {
   justify-content: flex-end;
   gap: 8px;
   white-space: nowrap;
+}
+
+.row-actions .edit-btn,
+.row-actions .delete-btn,
+.row-actions .save-btn,
+.row-actions .cancel-btn {
+  width: 64px;
+  padding: 0;
+  font-size: 12px;
 }
 
 .edit-btn,
