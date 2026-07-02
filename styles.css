@@ -194,6 +194,9 @@ h2 {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
   border: 1px solid rgba(249, 115, 22, 0.42);
   border-radius: 999px;
@@ -750,9 +753,14 @@ body.has-open-modal {
 
 
 .details-title-row {
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 18px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.details-title-row > div:first-child {
+  flex: 0 0 auto;
 }
 
 .title-inline-actions {
@@ -925,30 +933,16 @@ body.has-open-modal {
   padding: 0 28px 0 9px;
 }
 
-.hint-icon {
+.tooltip-btn {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  border: 1px solid rgba(249, 115, 22, 0.46);
-  border-radius: 999px;
-  background: rgba(249, 115, 22, 0.1);
-  color: #fed7aa;
-  font-size: 20px;
-  font-weight: 950;
-  cursor: help;
-  user-select: none;
 }
 
-.hint-icon.is-warning {
+.tooltip-btn.is-warning {
   border-color: rgba(251, 191, 36, 0.65);
   background: rgba(251, 191, 36, 0.13);
 }
 
-.hint-icon::after {
+.tooltip-btn::after {
   content: attr(data-tooltip);
   position: absolute;
   right: 0;
@@ -972,8 +966,8 @@ body.has-open-modal {
   transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
-.hint-icon:hover::after,
-.hint-icon:focus-visible::after {
+.tooltip-btn:hover::after,
+.tooltip-btn:focus-visible::after {
   opacity: 1;
   transform: translateY(0);
 }
@@ -992,32 +986,34 @@ body.has-open-modal {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
 .table-action-group {
   align-items: center;
-  padding-top: 18px;
+  flex: 1 1 720px;
+  padding-top: 0;
 }
 
 .manage-actions .ghost-btn, .table-action-group .ghost-btn {
-  min-height: 42px;
+  min-height: 38px;
 }
 
 .table-action-group .ghost-btn {
-  font-size: 14px;
+  padding: 0 14px;
+  font-size: 13px;
 }
 
 .inline-data-actions {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
-  gap: 10px;
-  margin-right: 28px;
+  gap: 8px;
+  margin-right: 12px;
 }
 
 .inline-data-actions .ghost-btn {
-  min-height: 42px;
+  min-height: 38px;
 }
 
 
@@ -1071,8 +1067,8 @@ body.has-open-modal {
 .display-switch {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 42px;
+  gap: 4px;
+  min-height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   padding: 4px;
@@ -1082,13 +1078,13 @@ body.has-open-modal {
 .display-mode-control {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .type-filter-control {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .display-mode-label {
@@ -1099,7 +1095,7 @@ body.has-open-modal {
 }
 
 .filter-select {
-  min-height: 42px;
+  min-height: 38px;
   border: 1px solid rgba(249, 115, 22, 0.42);
   border-radius: 999px;
   padding: 0 34px 0 14px;
@@ -1111,9 +1107,9 @@ body.has-open-modal {
 }
 
 .display-mode-btn {
-  min-height: 34px;
+  min-height: 30px;
   border-color: transparent;
-  padding: 0 12px;
+  padding: 0 10px;
   background: transparent;
   color: var(--muted);
   font-size: 13px;
@@ -1904,32 +1900,20 @@ body.is-readonly #priceRows tr:not(.is-editing):hover > td {
   }
 
   .table-action-group {
-    display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: stretch;
     align-items: center;
     gap: 10px 12px;
   }
 
   body.is-readonly .table-action-group {
-    grid-template-columns: 44px minmax(0, 1fr);
     gap: 8px 10px;
   }
 
   .table-action-group .display-mode-control,
   .table-action-group .inline-data-actions {
-    grid-column: 1 / -1;
-  }
-
-  .table-action-group .hint-icon {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
-  }
-
-  body.is-readonly .table-action-group .hint-icon {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
+    width: 100%;
   }
 
   .table-action-group > #officialToggleBtn {

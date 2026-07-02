@@ -105,7 +105,6 @@ const cancelDeleteProviderBtn = document.querySelector('#cancelDeleteProviderBtn
 const confirmDeleteProviderBtn = document.querySelector('#confirmDeleteProviderBtn');
 const formMessage = document.querySelector('#formMessage');
 const officialToggleBtn = document.querySelector('#officialToggleBtn');
-const officialVisibilityHint = document.querySelector('#officialVisibilityHint');
 const displayModeButtons = document.querySelectorAll('.display-mode-btn');
 const providerTypeFilterSelect = document.querySelector('#providerTypeFilter');
 
@@ -718,7 +717,7 @@ function renderDisplayModeControls() {
 }
 
 function renderOfficialControls(showOfficial, sameOfficialPrice) {
-  if (!officialToggleBtn || !officialVisibilityHint) return;
+  if (!officialToggleBtn) return;
   officialToggleBtn.textContent = showOfficial ? '隐藏官方价' : '显示官方价';
   officialToggleBtn.setAttribute('aria-pressed', String(showOfficial));
   const modeText = priceDisplayMode === 'original'
@@ -729,11 +728,9 @@ function renderOfficialControls(showOfficial, sameOfficialPrice) {
   const hintText = sameOfficialPrice
     ? `${modeText} 需要查看或修改官方基础价格时，可点“显示官方价”。`
     : `${modeText} 不同渠道的原始计价方式可能不同，切换显示方式不会改动官方价格数据。`;
-  officialVisibilityHint.textContent = '?';
-  officialVisibilityHint.setAttribute('aria-label', hintText);
-  officialVisibilityHint.setAttribute('title', hintText);
-  officialVisibilityHint.dataset.tooltip = hintText;
-  officialVisibilityHint.classList.toggle('is-warning', !sameOfficialPrice);
+  officialToggleBtn.setAttribute('aria-label', hintText);
+  officialToggleBtn.dataset.tooltip = hintText;
+  officialToggleBtn.classList.toggle('is-warning', !sameOfficialPrice);
 }
 
 function render(options = {}) {
